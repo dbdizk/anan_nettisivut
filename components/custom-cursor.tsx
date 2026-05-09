@@ -19,7 +19,7 @@ export function CustomCursor() {
 
   return (
     <motion.div
-      aria-hidden
+      aria-hidden={true}
       className="pointer-events-none fixed z-50 hidden h-5 w-5 rounded-full border border-zinc-300/60 mix-blend-difference md:block"
       style={{ x, y }}
     />
