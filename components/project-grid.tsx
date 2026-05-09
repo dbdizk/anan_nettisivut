@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { ArrowUpRight } from "lucide-react";
 
 import { Reveal } from "@/components/reveal";
-import { projects } from "@/data/projects";
+import { reelVideos } from "@/data/projects";
 
 export function ProjectGrid() {
   return (
@@ -16,10 +16,10 @@ export function ProjectGrid() {
       </Reveal>
 
       <div className="grid gap-5 md:grid-cols-2">
-        {projects.map((project, index) => (
-          <Reveal key={project.name}>
+        {reelVideos.map((video, index) => (
+          <Reveal key={video.id}>
             <motion.a
-              href={project.href}
+              href="#"
               className="group flex h-full flex-col justify-between rounded-2xl border border-zinc-800 bg-zinc-950 p-7"
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -29,12 +29,10 @@ export function ProjectGrid() {
             >
               <div className="space-y-3">
                 <h3 className="text-xl tracking-[-0.01em] text-zinc-100">
-                  {project.name}
+                  {video.title}
                 </h3>
-                <p className="leading-relaxed text-zinc-400">{project.description}</p>
               </div>
               <div className="mt-8 flex items-center justify-between text-sm text-zinc-500">
-                <span>{project.stack}</span>
                 <ArrowUpRight
                   size={16}
                   className="transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5"

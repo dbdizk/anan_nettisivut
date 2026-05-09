@@ -1,29 +1,23 @@
 "use client";
 
-import { Reveal } from "@/components/reveal";
-
 export function AboutSection() {
   return (
-    <section className="grid gap-10 border-t border-zinc-800 pt-16 md:grid-cols-12">
-      <Reveal className="md:col-span-3">
-        <h2 className="text-sm uppercase tracking-[0.18em] text-zinc-500">
-          About / Experience
-        </h2>
-      </Reveal>
+    <section className="w-full py-20 px-6 md:px-12">
+      <div className="max-w-4xl mx-auto">
+        <div className="space-y-8">
+          <p className="text-2xl md:text-3xl lg:text-4xl leading-relaxed font-light tracking-tight">
+            I create visual direction, brand systems, and creative concepts that define how people experience design.
+          </p>
+          
+          <p className="text-xl md:text-2xl text-gray-500 leading-relaxed font-light">
+            My work spans campaign identities, visual strategy, and motion direction for brands and agencies globally.
+          </p>
 
-      <Reveal className="space-y-7 md:col-span-9">
-        <p className="max-w-3xl text-xl leading-[1.95] text-zinc-300">
-          I design and build interfaces where typography, spacing, and motion
-          communicate as clearly as the content itself. Over the last years, I have
-          shipped product experiences for startups and design-led teams across
-          commerce, media, and collaboration tools.
-        </p>
-        <p className="max-w-3xl text-xl leading-[1.95] text-zinc-400">
-          My work spans concept direction, design system architecture, and
-          implementation in React/Next.js environments. I care about detail, calm
-          interactions, and performance that feels invisible.
-        </p>
-      </Reveal>
+          <p className="text-lg text-gray-600 leading-relaxed font-light">
+            Currently based in Helsinki, available for select projects and collaborations.
+          </p>
+        </div>
+      </div>
     </section>
   );
 }
