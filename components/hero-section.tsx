@@ -1,22 +1,27 @@
 "use client";
 
 import type { ReactNode } from "react";
+import { MusicPlayer } from "@/components/music-player-bar";
 
 function IconButton({
   label,
+  href,
   children,
 }: {
   label: string;
+  href: string;
   children: ReactNode;
 }) {
   return (
-    <button
-      type="button"
+    <a
+      href={href}
+      target="_blank"
+      rel="noreferrer"
       aria-label={label}
       className="p-2.5 rounded-md border border-gray-800 hover:border-gray-700 text-gray-300"
     >
       {children}
-    </button>
+    </a>
   );
 }
 
@@ -77,21 +82,26 @@ function TiktokIcon({ className }: { className?: string }) {
 
 export function HeroSection() {
   return (
-    <header className="w-full bg-[#0a0a0a] p-[18px] flex items-center justify-between sticky top-0 z-40">
-      <div className="flex items-baseline gap-5">
-        <h1 className="text-7xl md:text-8xl lg:text-9xl font-normal tracking-tight leading-none">ANTTIPARK</h1>
-        <p className="text-xl md:text-3xl text-gray-400 tracking-wide leading-none">Visual Designer</p>
+    <header className="w-full bg-[#0a0a0a] p-[18px] flex flex-col items-start gap-4 lg:flex-row lg:items-center lg:justify-between lg:gap-6 lg:sticky lg:top-0 z-40">
+      <div className="flex items-baseline gap-3 sm:gap-5 shrink-0">
+        <h1 className="text-5xl sm:text-6xl md:text-8xl lg:text-9xl font-normal tracking-tight leading-none">ANTTIPARK</h1>
+        <p className="text-sm sm:text-base md:text-3xl text-gray-400 tracking-wide leading-none">Visual Designer</p>
       </div>
 
-      <div className="flex items-center gap-6">
+      {/* Desktop: keep the existing layout */}
+      <div className="hidden lg:block">
+        <MusicPlayer />
+      </div>
+
+      <div className="hidden lg:flex items-center gap-6 shrink-0">
         <div className="flex items-center gap-3 text-gray-300">
-          <IconButton label="TikTok">
+          <IconButton label="TikTok" href="https://www.tiktok.com/@byanttipark">
             <TiktokIcon className="w-8 h-8" />
           </IconButton>
-          <IconButton label="YouTube">
+          <IconButton label="YouTube" href="https://www.youtube.com/@byanttipark">
             <YoutubeIcon className="w-8 h-8" />
           </IconButton>
-          <IconButton label="Instagram">
+          <IconButton label="Instagram" href="https://www.instagram.com/byanttipark/">
             <InstagramIcon className="w-8 h-8" />
           </IconButton>
         </div>
@@ -100,6 +110,30 @@ export function HeroSection() {
           <p className="text-xl md:text-2xl text-gray-200 tracking-wide">Contact me</p>
           <p className="text-lg md:text-xl text-gray-400 tracking-wide leading-none">byanttipark@gmail.com</p>
         </div>
+      </div>
+
+      {/* Mobile: socials + email, then player */}
+      <div className="w-full flex flex-col gap-3 lg:hidden">
+        <div className="flex items-start justify-between gap-4">
+          <div className="flex items-center gap-3 text-gray-300">
+            <IconButton label="TikTok" href="https://www.tiktok.com/@byanttipark">
+              <TiktokIcon className="w-7 h-7" />
+            </IconButton>
+            <IconButton label="YouTube" href="https://www.youtube.com/@byanttipark">
+              <YoutubeIcon className="w-7 h-7" />
+            </IconButton>
+            <IconButton label="Instagram" href="https://www.instagram.com/byanttipark/">
+              <InstagramIcon className="w-7 h-7" />
+            </IconButton>
+          </div>
+
+          <div className="text-right leading-none">
+            <p className="text-base text-gray-200 tracking-wide">Contact me</p>
+            <p className="text-sm text-gray-400 tracking-wide leading-none">byanttipark@gmail.com</p>
+          </div>
+        </div>
+
+        <MusicPlayer />
       </div>
     </header>
   );

@@ -3,6 +3,10 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "gen:audio": "node scripts/generate-audio-tracks.mjs",
+    "gen:reel": "node scripts/generate-reel-videos.mjs",
+    "predev": "npm run gen:reel && npm run gen:audio",
+    "prebuild": "npm run gen:reel && npm run gen:audio",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
