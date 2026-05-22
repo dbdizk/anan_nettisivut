@@ -12,9 +12,9 @@ export const metadata: Metadata = {
   title: "ANTTIPARK — Visual Designer",
   description: "Visual design and creative direction work.",
   icons: {
-    icon: [{ url: "/icon.png", type: "image/png" }],
-    shortcut: ["/icon.png"],
-    apple: [{ url: "/apple-icon.png", type: "image/png" }],
+    icon: [{ url: "/icon/horus.png", type: "image/png" }],
+    shortcut: ["/icon/horus.png"],
+    apple: [{ url: "/icon/horus.png", type: "image/png" }],
   },
 };
 
