@@ -131,6 +131,7 @@ export function ReelSection() {
   const mobileRafRef = useRef<number | null>(null);
   const mobileLastTsRef = useRef<number>(0);
   const mobileLoopWidthRef = useRef<number>(0);
+  const mobileScrollXRef = useRef<number>(0);
   const mobileIsInteractingRef = useRef(false);
   const mobileResumeTimerRef = useRef<number | null>(null);
 
@@ -173,6 +174,7 @@ export function ReelSection() {
 
     const markInteracting = () => {
       mobileIsInteractingRef.current = true;
+      mobileScrollXRef.current = viewport.scrollLeft;
       clearResumeTimer();
     };
 
@@ -180,12 +182,23 @@ export function ReelSection() {
       clearResumeTimer();
       mobileResumeTimerRef.current = globalThis.setTimeout(() => {
         mobileIsInteractingRef.current = false;
+        mobileScrollXRef.current = viewport.scrollLeft;
       }, 1500) as unknown as number;
     };
 
     const updateLoopWidth = () => {
-      // Track contains 2 identical sets.
-      mobileLoopWidthRef.current = Math.floor(track.scrollWidth / 2);
+      // Track contains 2 identical sets. Using `scrollWidth / 2` is inaccurate when flex `gap`
+      // exists between the last card of set 1 and the first card of set 2.
+      const cards = track.querySelectorAll<HTMLElement>('[data-reel-card="true"]');
+      const marker = cards[reelVideos.length];
+      const byMarker = marker?.offsetLeft ?? 0;
+      if (byMarker > 0) {
+        mobileLoopWidthRef.current = byMarker;
+        return;
+      }
+
+      const fallback = Math.floor(track.scrollWidth / 2);
+      mobileLoopWidthRef.current = Number.isFinite(fallback) ? fallback : 0;
     };
 
     // Measure a few times to catch late layout/media sizing.
@@ -193,8 +206,16 @@ export function ReelSection() {
     const measureRaf1 = requestAnimationFrame(updateLoopWidth);
     const measureRaf2 = requestAnimationFrame(() => requestAnimationFrame(updateLoopWidth));
 
-    const ro = new ResizeObserver(updateLoopWidth);
-    ro.observe(track);
+    // Keep our internal scroll position in sync.
+    mobileScrollXRef.current = viewport.scrollLeft;
+
+    const ro =
+      typeof ResizeObserver === "undefined"
+        ? null
+        : new ResizeObserver(() => {
+            updateLoopWidth();
+          });
+    ro?.observe(track);
 
     viewport.addEventListener("pointerdown", markInteracting);
     viewport.addEventListener("pointerup", scheduleResume);
@@ -203,26 +224,32 @@ export function ReelSection() {
     viewport.addEventListener("touchstart", markInteracting, { passive: true });
     viewport.addEventListener("touchend", scheduleResume, { passive: true });
     viewport.addEventListener("touchcancel", scheduleResume, { passive: true });
-    viewport.addEventListener("scroll", scheduleResume, { passive: true });
+    const onScrollSync = () => {
+      mobileScrollXRef.current = viewport.scrollLeft;
+    };
+    viewport.addEventListener("scroll", onScrollSync, { passive: true });
 
-    const speedPxPerSecond = 14;
+    const speedPxPerSecond = 18;
 
     const tick = (ts: number) => {
       const loop = mobileLoopWidthRef.current;
       const maxScroll = viewport.scrollWidth - viewport.clientWidth;
 
       if (maxScroll <= 1) {
-        if (loop <= 0) updateLoopWidth();
+        // Nothing to scroll yet; re-measure in case layout isn't settled.
+        updateLoopWidth();
         mobileRafRef.current = requestAnimationFrame(tick);
         return;
       }
 
       if (loop <= 0) {
+        updateLoopWidth();
         mobileRafRef.current = requestAnimationFrame(tick);
         return;
       }
 
       if (mobileIsInteractingRef.current) {
+        mobileScrollXRef.current = viewport.scrollLeft;
         mobileLastTsRef.current = ts;
         mobileRafRef.current = requestAnimationFrame(tick);
         return;
@@ -233,16 +260,17 @@ export function ReelSection() {
       const dt = Math.min(50, ts - last);
 
       const delta = (speedPxPerSecond * dt) / 1000;
-      const next = viewport.scrollLeft + delta;
+      let next = mobileScrollXRef.current + delta;
 
       // Prefer looping at `loop` when we have a duplicated track.
-      if (loop > 0 && next >= loop) {
-        viewport.scrollLeft = next - loop;
+      if (loop > 0) {
+        next = next % loop;
       } else if (next >= maxScroll) {
-        viewport.scrollLeft = 0;
-      } else {
-        viewport.scrollLeft = next;
+        next = 0;
       }
+
+      mobileScrollXRef.current = next;
+      viewport.scrollLeft = next;
 
       mobileRafRef.current = requestAnimationFrame(tick);
     };
@@ -258,8 +286,8 @@ export function ReelSection() {
       viewport.removeEventListener("touchstart", markInteracting);
       viewport.removeEventListener("touchend", scheduleResume);
       viewport.removeEventListener("touchcancel", scheduleResume);
-      viewport.removeEventListener("scroll", scheduleResume);
-      ro.disconnect();
+      viewport.removeEventListener("scroll", onScrollSync);
+      ro?.disconnect();
       cancelAnimationFrame(measureRaf1);
       cancelAnimationFrame(measureRaf2);
       if (mobileRafRef.current) cancelAnimationFrame(mobileRafRef.current);
@@ -277,8 +305,12 @@ export function ReelSection() {
     if (reduceMotion) return;
 
     const updateLoopWidth = () => {
-      // Track contains 2 identical sets.
-      loopWidthRef.current = Math.floor(track.scrollWidth / 2);
+      // Track contains 2 identical sets. Use the start of the 2nd set as the loop width
+      // to avoid gap-related drift.
+      const cards = track.querySelectorAll<HTMLElement>('[data-reel-card="true"]');
+      const marker = cards[reelVideos.length];
+      const byMarker = marker?.offsetLeft ?? 0;
+      loopWidthRef.current = byMarker > 0 ? byMarker : Math.floor(track.scrollWidth / 2);
       if (loopWidthRef.current > 0) {
         // Normalize offset into [-loopWidth, 0)
         const loop = loopWidthRef.current;
@@ -398,7 +430,7 @@ export function ReelSection() {
   }, [isDesktop]);
 
   return (
-    <section className="w-full flex-1 min-h-0 overflow-hidden bg-[#0a0a0a] relative pb-1 md:pb-5">
+    <section className="w-full flex-none lg:flex-1 min-h-0 overflow-hidden bg-[#0a0a0a] relative pb-0">
       <div className="pointer-events-none absolute inset-y-0 left-0 w-10 md:w-16 bg-gradient-to-r from-[#0a0a0a] to-transparent" />
       <div className="pointer-events-none absolute inset-y-0 right-0 w-10 md:w-16 bg-gradient-to-l from-[#0a0a0a] to-transparent" />
 
@@ -426,8 +458,8 @@ export function ReelSection() {
           </div>
         </div>
       ) : (
-        <div ref={viewportRef} className="no-scrollbar h-full min-h-0 overflow-x-auto overflow-y-hidden px-6 md:px-12">
-          <div ref={trackRef} className="h-full min-h-0 flex items-start gap-3 w-max">
+        <div ref={viewportRef} className="no-scrollbar h-auto overflow-x-auto overflow-y-hidden px-6 md:px-12">
+          <div ref={trackRef} className="h-auto flex items-start gap-3 w-max">
             {loopedVideos.map((video, idx) => (
               <ReelVideoCard key={`${video.id}-${idx}`} video={video} rootRef={viewportRef} onHoverChange={() => {}} />
             ))}
