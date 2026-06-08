@@ -35,7 +35,9 @@ function titleFromFilename(filename) {
     .replace(/[-_ ]?mp4$/i, "")
     .trim();
 
-  return base.replace(/[-_]+/g, " ").trim();
+  if (base.toLowerCase() === "hk") return "H&K";
+
+  return base.replace(/[-_]+/g, " ").trim().toUpperCase();
 }
 
 async function main() {

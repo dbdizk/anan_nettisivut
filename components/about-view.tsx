@@ -100,7 +100,7 @@ export function AboutView() {
             <div className="w-full md:w-[420px] lg:w-[520px] shrink-0">
               <div className="relative w-full aspect-[4/5] overflow-hidden rounded-lg border border-gray-800">
                 <Image
-                  src="/images/nettisivu%20pf%20kuva.png"
+                  src="/images/portrait.png"
                   alt="Portrait"
                   fill
                   sizes="(min-width: 1024px) 520px, (min-width: 768px) 420px, 90vw"
