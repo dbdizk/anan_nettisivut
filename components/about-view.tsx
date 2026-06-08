@@ -80,7 +80,7 @@ function TiktokIcon({ className }: { className?: string }) {
 
 export function AboutView() {
   return (
-    <div className="relative h-screen w-full bg-[#0a0a0a] text-white overflow-hidden">
+    <div className="relative min-h-screen lg:h-screen w-full bg-[#0a0a0a] text-white overflow-x-hidden overflow-y-auto lg:overflow-hidden">
       <div className="pointer-events-none absolute inset-0 hidden lg:block overflow-hidden">
         <div className="h-full w-[200%] flex motion-reduce:animate-none animate-about-bg opacity-20">
           <div
@@ -94,10 +94,10 @@ export function AboutView() {
         </div>
       </div>
 
-      <div className="relative h-full w-full p-[18px] flex items-center justify-center">
+      <div className="relative h-full w-full p-[18px] pt-10 pb-14 md:pt-[18px] md:pb-[18px] flex items-start lg:items-center justify-center">
         <div className="w-full px-0 md:px-12 max-w-6xl mx-auto">
-          <div className="flex flex-col md:flex-row items-start gap-10 md:gap-14">
-            <div className="w-full md:w-[420px] lg:w-[520px] shrink-0">
+          <div className="flex flex-col md:flex-row items-start gap-8 md:gap-14">
+            <div className="w-full max-w-[320px] mx-auto md:max-w-none md:mx-0 md:w-[420px] lg:w-[520px] shrink-0">
               <div className="relative w-full aspect-[4/5] overflow-hidden rounded-lg border border-gray-800">
                 <Image
                   src="/images/portrait.png"
@@ -111,10 +111,10 @@ export function AboutView() {
             </div>
 
             <div className="flex-1 min-w-0">
-              <h2 className="text-6xl md:text-7xl lg:text-8xl font-normal tracking-tight leading-none lg:mt-[-9px]">
+              <h2 className="text-6xl md:text-7xl lg:text-8xl font-normal tracking-tight leading-none lg:mt-[-9px] mt-1 md:mt-0">
                 ABOUT ME
               </h2>
-              <div className="mt-6 max-w-[56ch] text-lg md:text-xl text-gray-300 leading-relaxed space-y-6">
+              <div className="mt-5 md:mt-6 max-w-[56ch] text-lg md:text-xl text-gray-300 leading-relaxed space-y-5 md:space-y-6">
                 <p>
                   I’m a creative based in Helsinki, working with graphic design, video, and music. I build modern
                   visuals that feel clean and convey emotion. My inspiration comes from music, internet culture, and

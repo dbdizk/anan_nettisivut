@@ -11,7 +11,7 @@ export default function Home() {
           <HeroSection />
           <ReelSection />
 
-          <footer className="w-full px-6 md:px-12 min-h-10 pt-0 pb-0 md:min-h-0 md:pb-6 md:pt-4 flex flex-col items-center justify-center flex-1 lg:flex-none">
+          <footer className="w-full px-6 md:px-12 min-h-10 pt-4 pb-0 md:min-h-0 md:pb-6 md:pt-4 flex flex-col items-center justify-center flex-1 lg:flex-none">
             <div className="text-gray-200 tracking-[0.3em] text-sm md:text-base">ABOUT ME</div>
             <div className="mt-0 md:mt-2 text-gray-400 animate-float">
               <svg
