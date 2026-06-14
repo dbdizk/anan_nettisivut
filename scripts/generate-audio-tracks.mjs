@@ -54,6 +54,7 @@ async function main() {
     throw err;
   }
 
+  const preferredOrder = ["KYOTO", "TEMPORARY", "REMOTE", "SPACETIME", "FASTLANE"];
   const tracks = audioFilesAbs
     .filter((p) => /\.(mp3|m4a|aac|wav|ogg|flac)$/i.test(p))
     .map((abs) => {
@@ -72,7 +73,8 @@ async function main() {
         artist: meta.artist,
       };
     })
-    .sort((a, b) => a.relPosix.localeCompare(b.relPosix, "en"));
+    .filter((t) => preferredOrder.includes(t.title))
+    .sort((a, b) => preferredOrder.indexOf(a.title) - preferredOrder.indexOf(b.title));
 
   const lines = [];
   lines.push("// AUTO-GENERATED FILE. DO NOT EDIT.");

@@ -62,24 +62,6 @@ function YoutubeIcon({ className }: { className?: string }) {
   );
 }
 
-function TiktokIcon({ className }: { className?: string }) {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.8"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className={className}
-      aria-hidden="true"
-    >
-      <path d="M14 6v9.1a3.3 3.3 0 1 1-2.2-3.1" />
-      <path d="M14 6c.7 2.2 2.4 3.7 4.5 4" />
-    </svg>
-  );
-}
-
 export function HeroSection() {
   return (
     <header className="w-full bg-[#0a0a0a] p-[18px] flex flex-col items-start gap-4 lg:flex-row lg:items-center lg:justify-between lg:gap-6 lg:sticky lg:top-0 z-40">
@@ -95,9 +77,6 @@ export function HeroSection() {
 
       <div className="hidden lg:flex items-center gap-6 shrink-0">
         <div className="flex items-center gap-3 text-gray-300">
-          <IconButton label="TikTok" href="https://www.tiktok.com/@byanttipark">
-            <TiktokIcon className="w-8 h-8" />
-          </IconButton>
           <IconButton label="YouTube" href="https://www.youtube.com/@byanttipark">
             <YoutubeIcon className="w-8 h-8" />
           </IconButton>
@@ -116,9 +95,6 @@ export function HeroSection() {
       <div className="w-full flex flex-col gap-3 lg:hidden">
         <div className="flex items-start justify-between gap-4">
           <div className="flex items-center gap-3 text-gray-300">
-            <IconButton label="TikTok" href="https://www.tiktok.com/@byanttipark">
-              <TiktokIcon className="w-7 h-7" />
-            </IconButton>
             <IconButton label="YouTube" href="https://www.youtube.com/@byanttipark">
               <YoutubeIcon className="w-7 h-7" />
             </IconButton>

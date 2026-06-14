@@ -49,6 +49,43 @@ function IconButton({
 export function MusicPlayer() {
 	const audioRef = useRef<HTMLAudioElement>(null);
 	const pendingPlayRef = useRef(false);
+	const audioContextRef = useRef<AudioContext | null>(null);
+	const sourceNodeRef = useRef<MediaElementAudioSourceNode | null>(null);
+	const compressorRef = useRef<DynamicsCompressorNode | null>(null);
+	const gainNodeRef = useRef<GainNode | null>(null);
+	const playbackGain = 0.78;
+
+	const ensureAudioGraph = () => {
+		const el = audioRef.current;
+		if (!el) return;
+
+		const AudioCtx = globalThis.AudioContext ?? (globalThis as typeof globalThis & { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+		if (!AudioCtx) return;
+
+		if (!audioContextRef.current) {
+			audioContextRef.current = new AudioCtx();
+		}
+
+		const ctx = audioContextRef.current;
+		if (!ctx) return;
+
+		if (!sourceNodeRef.current) {
+			sourceNodeRef.current = ctx.createMediaElementSource(el);
+			compressorRef.current = ctx.createDynamicsCompressor();
+			gainNodeRef.current = ctx.createGain();
+
+			compressorRef.current.threshold.value = -26;
+			compressorRef.current.knee.value = 24;
+			compressorRef.current.ratio.value = 12;
+			compressorRef.current.attack.value = 0.003;
+			compressorRef.current.release.value = 0.2;
+			gainNodeRef.current.gain.value = playbackGain;
+
+			sourceNodeRef.current.connect(compressorRef.current);
+			compressorRef.current.connect(gainNodeRef.current);
+			gainNodeRef.current.connect(ctx.destination);
+		}
+	};
 
 	const playlist = useMemo<Track[]>(() => audioTracks.map((t) => ({ ...t })), []);
 	const hasTracks = playlist.length > 0;
@@ -100,6 +137,8 @@ export function MusicPlayer() {
 		if (!hasTracks) return;
 		const el = audioRef.current;
 		if (!el) return;
+		ensureAudioGraph();
+		void audioContextRef.current?.resume();
 
 		if (isPlaying) {
 			el.pause();
@@ -154,7 +193,11 @@ export function MusicPlayer() {
 		const el = audioRef.current;
 		if (!el) return;
 		el.muted = isMuted;
-	}, [isMuted]);
+		el.volume = 1;
+		if (gainNodeRef.current) {
+			gainNodeRef.current.gain.value = playbackGain;
+		}
+	}, [isMuted, playbackGain]);
 
 	useEffect(() => {
 		const el = audioRef.current;
@@ -163,6 +206,8 @@ export function MusicPlayer() {
 		el.load();
 		if (pendingPlayRef.current) {
 			pendingPlayRef.current = false;
+			ensureAudioGraph();
+			void audioContextRef.current?.resume();
 			el.play().then(
 				() => setIsPlaying(true),
 				() => setIsPlaying(false)

@@ -60,24 +60,6 @@ function YoutubeIcon({ className }: { className?: string }) {
   );
 }
 
-function TiktokIcon({ className }: { className?: string }) {
-  return (
-    <svg
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.8"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      className={className}
-      aria-hidden="true"
-    >
-      <path d="M14 6v9.1a3.3 3.3 0 1 1-2.2-3.1" />
-      <path d="M14 6c.7 2.2 2.4 3.7 4.5 4" />
-    </svg>
-  );
-}
-
 export function AboutView() {
   return (
     <div className="relative min-h-screen lg:h-screen w-full bg-[#0a0a0a] text-white overflow-x-hidden overflow-y-auto lg:overflow-hidden">
@@ -116,16 +98,14 @@ export function AboutView() {
               </h2>
               <div className="mt-5 md:mt-6 max-w-[56ch] text-lg md:text-xl text-gray-300 leading-relaxed space-y-5 md:space-y-6">
                 <p>
-                  I’m a creative based in Helsinki, working with graphic design, video, and music. I build modern
-                  visuals that feel clean and convey emotion. My inspiration comes from music, internet culture, and
-                  personal experiences. I collaborate with brands and artists who value strong visual identity.
+                  I’m a Helsinki-based creative working across video, graphic design, and music. My work combines
+                  clean, modern aesthetics with emotion and atmosphere, drawing heavy inspiration from hip-hop
+                  culture. If you have a brand that cares about building a distinctive visual identity, let’s work
+                  together.
                 </p>
 
                 <div className="pt-2 flex flex-col gap-4">
                   <div className="flex items-center gap-3 text-gray-300">
-                    <IconButton label="TikTok" href="https://www.tiktok.com/@byanttipark">
-                      <TiktokIcon className="w-7 h-7 md:w-8 md:h-8" />
-                    </IconButton>
                     <IconButton label="YouTube" href="https://www.youtube.com/@byanttipark">
                       <YoutubeIcon className="w-7 h-7 md:w-8 md:h-8" />
                     </IconButton>

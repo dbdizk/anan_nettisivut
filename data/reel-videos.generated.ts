@@ -14,22 +14,22 @@ export const reelVideos = [
   },
   {
     id: "3",
-    src: "/media/DANCEMEUP_MP4.mp4",
-    title: "DANCEMEUP",
-  },
-  {
-    id: "4",
     src: "/media/DOM_MP4.mp4",
     title: "DOM",
   },
   {
-    id: "5",
+    id: "4",
     src: "/media/hk.mp4",
     title: "H&K",
   },
   {
-    id: "6",
+    id: "5",
     src: "/media/KLANGI_MP4.mp4",
     title: "KLANGI",
+  },
+  {
+    id: "6",
+    src: "/media/WAVE_MP4.mp4",
+    title: "WAVE",
   },
 ];

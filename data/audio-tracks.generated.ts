@@ -3,19 +3,14 @@
 
 export const audioTracks = [
   {
-    title: "CAROUSEL",
-    artist: "ANTTIPARK",
-    src: "/audio/ANTTIPARK_CAROUSEL.mp3",
-  },
-  {
-    title: "FASTLANE",
-    artist: "ANTTIPARK",
-    src: "/audio/ANTTIPARK_FASTLANE.mp3",
-  },
-  {
     title: "KYOTO",
     artist: "ANTTIPARK",
     src: "/audio/ANTTIPARK_KYOTO.mp3",
+  },
+  {
+    title: "TEMPORARY",
+    artist: "ANTTIPARK",
+    src: "/audio/ANTTIPARK_TEMPORARY.mp3",
   },
   {
     title: "REMOTE",
@@ -28,8 +23,8 @@ export const audioTracks = [
     src: "/audio/ANTTIPARK_SPACETIME.mp3",
   },
   {
-    title: "TEMPORARY",
+    title: "FASTLANE",
     artist: "ANTTIPARK",
-    src: "/audio/ANTTIPARK_TEMPORARY.mp3",
+    src: "/audio/ANTTIPARK_FASTLANE.mp3",
   },
 ] as const;
