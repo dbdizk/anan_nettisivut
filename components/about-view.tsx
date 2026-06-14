@@ -16,7 +16,7 @@ function IconButton({
       target="_blank"
       rel="noreferrer"
       aria-label={label}
-      className="p-2.5 rounded-md border border-gray-800 hover:border-gray-700 bg-black/40 hover:bg-black/55 text-gray-300 shadow-sm shadow-black/30 hover:shadow-black/50"
+      className="p-2.5 lg:p-[max(0.625rem,0.93vh)] rounded-md border border-gray-800 hover:border-gray-700 bg-black/40 hover:bg-black/55 text-gray-300 shadow-sm shadow-black/30 hover:shadow-black/50"
     >
       {children}
     </a>
@@ -77,15 +77,15 @@ export function AboutView() {
       </div>
 
       <div className="relative h-full w-full p-[18px] pt-10 pb-14 md:pt-[18px] md:pb-[18px] flex items-start lg:items-center justify-center">
-        <div className="w-full px-0 md:px-12 max-w-6xl mx-auto">
-          <div className="flex flex-col md:flex-row items-start gap-8 md:gap-14">
-            <div className="w-full max-w-[320px] mx-auto md:max-w-none md:mx-0 md:w-[420px] lg:w-[520px] shrink-0">
+        <div className="w-full px-0 md:px-12 max-w-6xl lg:max-w-[max(72rem,106.7vh)] mx-auto">
+          <div className="flex flex-col md:flex-row items-start gap-8 md:gap-14 lg:gap-[max(3.5rem,5.19vh)]">
+            <div className="w-full max-w-[320px] mx-auto md:max-w-none md:mx-0 md:w-[420px] lg:w-[max(520px,48.15vh)] shrink-0">
               <div className="relative w-full aspect-[4/5] overflow-hidden rounded-lg border border-gray-800">
                 <Image
-                  src="/images/portrait.png"
+                  src="/images/portrait.jpg"
                   alt="Portrait"
                   fill
-                  sizes="(min-width: 1024px) 520px, (min-width: 768px) 420px, 90vw"
+                  sizes="(min-width: 1024px) 52vh, (min-width: 768px) 420px, 90vw"
                   className="object-cover"
                   priority
                 />
@@ -93,10 +93,10 @@ export function AboutView() {
             </div>
 
             <div className="flex-1 min-w-0">
-              <h2 className="text-6xl md:text-7xl lg:text-8xl font-normal tracking-tight leading-none lg:mt-[-9px] mt-1 md:mt-0">
+              <h2 className="text-6xl md:text-7xl lg:text-[max(6rem,8.89vh)] font-normal tracking-tight leading-none lg:mt-[-9px] mt-1 md:mt-0">
                 ABOUT ME
               </h2>
-              <div className="mt-5 md:mt-6 max-w-[56ch] text-lg md:text-xl text-gray-300 leading-relaxed space-y-5 md:space-y-6">
+              <div className="mt-5 md:mt-6 lg:mt-[max(1.5rem,2.22vh)] max-w-[56ch] text-lg md:text-xl lg:text-[max(1.25rem,1.85vh)] text-gray-300 leading-relaxed space-y-5 md:space-y-6 lg:space-y-[max(1.5rem,2.22vh)]">
                 <p>
                   I’m a Helsinki-based creative working across video, graphic design, and music. My work combines
                   clean, modern aesthetics with emotion and atmosphere, drawing heavy inspiration from hip-hop
@@ -104,17 +104,17 @@ export function AboutView() {
                   together.
                 </p>
 
-                <div className="pt-2 flex flex-col gap-4">
-                  <div className="flex items-center gap-3 text-gray-300">
-                    <IconButton label="YouTube" href="https://www.youtube.com/@byanttipark">
-                      <YoutubeIcon className="w-7 h-7 md:w-8 md:h-8" />
-                    </IconButton>
+                <div className="pt-2 flex flex-col gap-4 lg:gap-[max(1rem,1.48vh)]">
+                  <div className="flex items-center gap-3 lg:gap-[max(0.75rem,1.11vh)] text-gray-300">
                     <IconButton label="Instagram" href="https://www.instagram.com/byanttipark/">
-                      <InstagramIcon className="w-7 h-7 md:w-8 md:h-8" />
+                      <InstagramIcon className="w-7 h-7 md:w-8 md:h-8 lg:w-[max(2rem,2.96vh)] lg:h-[max(2rem,2.96vh)]" />
+                    </IconButton>
+                    <IconButton label="YouTube" href="https://www.youtube.com/@byanttipark">
+                      <YoutubeIcon className="w-7 h-7 md:w-8 md:h-8 lg:w-[max(2rem,2.96vh)] lg:h-[max(2rem,2.96vh)]" />
                     </IconButton>
                   </div>
 
-                  <div className="text-base md:text-lg text-gray-400 tracking-wide leading-none">byanttipark@gmail.com</div>
+                  <div className="text-base md:text-lg lg:text-[max(1.125rem,1.67vh)] text-gray-400 tracking-wide leading-none">byanttipark@gmail.com</div>
                 </div>
               </div>
             </div>

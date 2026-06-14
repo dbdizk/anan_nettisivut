@@ -39,7 +39,7 @@ function IconButton({
 			aria-pressed={pressed}
 			disabled={disabled}
 			onClick={onClick}
-			className="h-9 w-9 grid place-items-center text-gray-200 hover:text-white disabled:opacity-40 disabled:cursor-not-allowed"
+			className="h-[2.25em] w-[2.25em] grid place-items-center text-gray-200 hover:text-white disabled:opacity-40 disabled:cursor-not-allowed"
 		>
 			{children}
 		</button>
@@ -53,7 +53,7 @@ export function MusicPlayer() {
 	const sourceNodeRef = useRef<MediaElementAudioSourceNode | null>(null);
 	const compressorRef = useRef<DynamicsCompressorNode | null>(null);
 	const gainNodeRef = useRef<GainNode | null>(null);
-	const playbackGain = 0.78;
+	const playbackGain = 0.58;
 
 	const ensureAudioGraph = () => {
 		const el = audioRef.current;
@@ -222,35 +222,35 @@ export function MusicPlayer() {
 	};
 
 	return (
-		<div className="text-white h-14 w-full max-w-[520px] lg:w-[min(520px,40vw)]">
+		<div className="text-white [font-size:max(1rem,calc(0.5rem+0.74vh))] h-[3.5em] w-full max-w-[32.5em] lg:w-[min(32.5em,40vw)]">
 			<div className="relative h-full">
-				<div className="h-full px-3 flex items-center justify-between gap-3 pb-4">
-					<div className="flex items-center gap-1">
+				<div className="h-full px-[0.75em] flex items-center justify-between gap-[0.75em] pb-[1em]">
+					<div className="flex items-center gap-[0.25em]">
 						<IconButton label="Previous" onClick={onPrev} disabled={!hasTracks}>
-							<SkipBack className="h-5 w-5" />
+							<SkipBack className="h-[1.25em] w-[1.25em]" />
 						</IconButton>
 						<IconButton label={isPlaying ? "Pause" : "Play"} onClick={togglePlay} disabled={!hasTracks}>
-							{isPlaying ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5" />}
+							{isPlaying ? <Pause className="h-[1.25em] w-[1.25em]" /> : <Play className="h-[1.25em] w-[1.25em]" />}
 						</IconButton>
 						<IconButton label="Next" onClick={onNext} disabled={!hasTracks}>
-							<SkipForward className="h-5 w-5" />
+							<SkipForward className="h-[1.25em] w-[1.25em]" />
 						</IconButton>
 					</div>
 
 					<div className="flex-1 min-w-0 text-center leading-tight">
-						<div className="text-sm font-semibold truncate">{currentTrack.title}</div>
-						<div className="text-xs text-gray-400 truncate">{currentTrack.artist}</div>
+						<div className="text-[0.875em] font-semibold truncate">{currentTrack.title}</div>
+						<div className="text-[0.75em] text-gray-400 truncate">{currentTrack.artist}</div>
 					</div>
 
 					<div className="flex items-center">
 						<IconButton label={isMuted ? "Unmute" : "Mute"} pressed={isMuted} onClick={toggleMute}>
-							{isMuted ? <VolumeX className="h-5 w-5" /> : <Volume2 className="h-5 w-5" />}
+							{isMuted ? <VolumeX className="h-[1.25em] w-[1.25em]" /> : <Volume2 className="h-[1.25em] w-[1.25em]" />}
 						</IconButton>
 					</div>
 				</div>
 
-				<div className="absolute bottom-0 left-0 right-0 px-3 pb-0">
-					<div className="flex items-center gap-2 text-[11px] text-gray-400">
+				<div className="absolute bottom-0 left-0 right-0 px-[0.75em] pb-0">
+					<div className="flex items-center gap-[0.5em] text-[0.6875em] text-gray-400">
 						<span className="tabular-nums w-[40px] text-left">{formatTime(currentTime)}</span>
 						<input
 							aria-label="Seek"

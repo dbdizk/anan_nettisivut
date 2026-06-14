@@ -4,32 +4,38 @@
 export const reelVideos = [
   {
     id: "1",
-    src: "/media/ARCLAB_MP4.mp4",
+    src: "/media/optimized/ARCLAB_MP4.mp4",
+    poster: "/media/optimized/ARCLAB_MP4.jpg",
     title: "ARCLAB",
   },
   {
     id: "2",
-    src: "/media/CONCEPTS_MP4.mp4",
+    src: "/media/optimized/CONCEPTS_MP4.mp4",
+    poster: "/media/optimized/CONCEPTS_MP4.jpg",
     title: "CONCEPTS",
   },
   {
     id: "3",
-    src: "/media/DOM_MP4.mp4",
+    src: "/media/optimized/DOM_MP4.mp4",
+    poster: "/media/optimized/DOM_MP4.jpg",
     title: "DOM",
   },
   {
     id: "4",
-    src: "/media/hk.mp4",
+    src: "/media/optimized/hk.mp4",
+    poster: "/media/optimized/hk.jpg",
     title: "H&K",
   },
   {
     id: "5",
-    src: "/media/KLANGI_MP4.mp4",
+    src: "/media/optimized/KLANGI_MP4.mp4",
+    poster: "/media/optimized/KLANGI_MP4.jpg",
     title: "KLANGI",
   },
   {
     id: "6",
-    src: "/media/WAVE_MP4.mp4",
+    src: "/media/optimized/WAVE_MP4.mp4",
+    poster: "/media/optimized/WAVE_MP4.jpg",
     title: "WAVE",
   },
 ];
