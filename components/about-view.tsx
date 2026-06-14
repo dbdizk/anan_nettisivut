@@ -121,6 +121,10 @@ export function AboutView() {
           </div>
         </div>
       </div>
+
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 flex justify-center pb-3 md:pb-4">
+        <span className="text-[10px] md:text-xs tracking-[0.2em] text-gray-500">© ANTTIPARK 2026</span>
+      </div>
     </div>
   );
 }

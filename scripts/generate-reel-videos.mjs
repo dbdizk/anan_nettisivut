@@ -9,6 +9,14 @@ function toUrlPath(posixPath) {
   return posixPath.split("/").map(encodeURIComponent).join("/");
 }
 
+// Explicit display-name overrides, keyed by the clip's base filename (no extension).
+const TITLE_OVERRIDES = {
+  WAVE_MP4: "WAVE VENTURES",
+  ARCLAB_MP4: "ARC LAB",
+  DOM_MP4: "NIGHTCLUB DOM",
+  hk: "HILDÉN & KAIRA",
+};
+
 function titleFromFilename(filename) {
   const base = filename
     .replace(/\.[^.]+$/, "")
@@ -72,11 +80,17 @@ async function main() {
           ? `optimized/${base}.mp4`
           : originalName;
 
+        // Full-quality original, used as the desktop default; only meaningful when
+        // `src` points at the optimized version (otherwise they're the same file).
+        const srcHigh =
+          hasOptimized && originalName ? `/media/${toUrlPath(originalName)}` : undefined;
+
         return {
           base,
           src: `/media/${toUrlPath(srcRel)}`,
+          srcHigh,
           poster: hasPoster ? `/media/${toUrlPath(`optimized/${base}.jpg`)}` : undefined,
-          title: titleFromFilename(originalName ?? `${base}.mp4`),
+          title: TITLE_OVERRIDES[base] ?? titleFromFilename(originalName ?? `${base}.mp4`),
         };
       })
     )
@@ -92,6 +106,9 @@ async function main() {
     lines.push("  {");
     lines.push(`    id: ${JSON.stringify(String(i + 1))},`);
     lines.push(`    src: ${JSON.stringify(v.src)},`);
+    if (v.srcHigh) {
+      lines.push(`    srcHigh: ${JSON.stringify(v.srcHigh)},`);
+    }
     if (v.poster) {
       lines.push(`    poster: ${JSON.stringify(v.poster)},`);
     }

@@ -1,19 +1,25 @@
 "use client";
 
-import { useEffect, useMemo, useRef, type RefObject } from "react";
+import { useEffect, useMemo, useRef, useState, type RefObject } from "react";
 import { reelVideos, type Video } from "@/data/projects";
 
 function ReelVideoCard({
   video,
   rootRef,
+  highQuality,
   onHoverChange,
 }: {
   video: Video;
   rootRef: RefObject<HTMLDivElement | null>;
+  highQuality: boolean;
   onHoverChange: (isHovering: boolean) => void;
 }) {
   const cardRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
+
+  // Desktop plays the full-quality original (better colors); phones keep the
+  // lighter optimized clip. The poster covers the load until playback starts.
+  const source = highQuality && video.srcHigh ? video.srcHigh : video.src;
 
   useEffect(() => {
     const cardEl = cardRef.current;
@@ -86,7 +92,9 @@ function ReelVideoCard({
       videoEl.removeEventListener("loadedmetadata", onLoadedMetadata);
       videoEl.removeEventListener("timeupdate", onTimeUpdate);
     };
-  }, [rootRef, video.clipEnd, video.clipStart]);
+    // `source` is included so playback re-initializes (and resumes) when the
+    // quality swaps between the optimized and full-quality file.
+  }, [rootRef, video.clipEnd, video.clipStart, source]);
 
   return (
     <figure
@@ -102,15 +110,15 @@ function ReelVideoCard({
     >
       <video
         ref={videoRef}
+        key={source}
         className="h-full w-full object-cover transition-[filter] duration-300 ease-out group-hover:blur-sm group-hover:brightness-75"
         muted
         playsInline
         loop
-        preload="auto"
+        preload={highQuality ? "metadata" : "auto"}
         poster={video.poster}
-      >
-        <source src={video.src} type="video/mp4" />
-      </video>
+        src={source}
+      />
       {video.title ? (
         <figcaption className="pointer-events-none absolute inset-0">
           <div className="absolute left-4 bottom-4 transition-opacity duration-300 ease-out opacity-100 group-hover:opacity-0">
@@ -145,7 +153,27 @@ export function ReelSection() {
   const dragStartYRef = useRef<number>(0);
   const dragStartOffsetRef = useRef<number>(0);
 
+  // Release momentum: extra fling velocity (px/ms) that decays back into the
+  // baseline drift, so the carousel coasts to a stop instead of stopping dead.
+  const momentumRef = useRef<number>(0);
+  const dragVelocityRef = useRef<number>(0);
+  const lastMoveXRef = useRef<number>(0);
+  const lastMoveTRef = useRef<number>(0);
+
   const loopedVideos = useMemo(() => [...reelVideos, ...reelVideos], []);
+
+  // PC (>=1024px) plays the full-quality originals; phones/tablets keep the
+  // lighter optimized clips. Defaults to false so SSR matches the mobile output.
+  const [highQuality, setHighQuality] = useState(false);
+
+  useEffect(() => {
+    const mq = globalThis.matchMedia?.("(min-width: 1024px)");
+    if (!mq) return;
+    const apply = () => setHighQuality(mq.matches);
+    apply();
+    mq.addEventListener("change", apply);
+    return () => mq.removeEventListener("change", apply);
+  }, []);
 
   // Keep the transform offset within [-loopWidth, 0) so the duplicated track
   // loops seamlessly in either direction.
@@ -187,7 +215,8 @@ export function ReelSection() {
       typeof ResizeObserver === "undefined" ? null : new ResizeObserver(() => updateLoopWidth());
     ro?.observe(track);
 
-    const speedPxPerSecond = 18; // slow, continuous
+    const speedPxPerSecond = 18; // slow, continuous baseline drift
+    const MOMENTUM_FRICTION = 0.94; // per ~16.67ms frame; lower = stops sooner
 
     const tick = (ts: number) => {
       const loopWidth = loopWidthRef.current;
@@ -197,7 +226,7 @@ export function ReelSection() {
         return;
       }
 
-      if (reduceMotion || isDraggingRef.current || isPausedByHoverRef.current) {
+      if (isDraggingRef.current) {
         lastTsRef.current = ts;
         rafRef.current = requestAnimationFrame(tick);
         return;
@@ -207,11 +236,20 @@ export function ReelSection() {
       lastTsRef.current = ts;
       const dt = Math.min(50, ts - last);
 
-      // Decrease offset => content moves right-to-left.
-      let next = offsetXRef.current - (speedPxPerSecond * dt) / 1000;
-      if (next <= -loopWidth) next += loopWidth;
-      offsetXRef.current = next;
-      track.style.transform = `translate3d(${next}px, 0, 0)`;
+      // Ease the leftover fling velocity toward zero (frame-rate independent).
+      if (momentumRef.current !== 0) {
+        momentumRef.current *= Math.pow(MOMENTUM_FRICTION, dt / 16.667);
+        if (Math.abs(momentumRef.current) < 0.003) momentumRef.current = 0;
+      }
+
+      // Baseline auto-drift (right-to-left) pauses while hovering (desktop) or
+      // with reduced motion — but a fling still coasts to a stop either way.
+      const baseline = reduceMotion || isPausedByHoverRef.current ? 0 : -speedPxPerSecond / 1000;
+      const velocity = baseline + momentumRef.current; // px per ms
+      if (velocity !== 0) {
+        offsetXRef.current = normalizeOffset(offsetXRef.current + velocity * dt);
+        track.style.transform = `translate3d(${offsetXRef.current}px, 0, 0)`;
+      }
 
       rafRef.current = requestAnimationFrame(tick);
     };
@@ -245,6 +283,12 @@ export function ReelSection() {
       dragStartXRef.current = e.clientX;
       dragStartYRef.current = e.clientY;
       dragStartOffsetRef.current = offsetXRef.current;
+
+      // Grabbing cancels any ongoing fling and resets velocity tracking.
+      momentumRef.current = 0;
+      dragVelocityRef.current = 0;
+      lastMoveXRef.current = e.clientX;
+      lastMoveTRef.current = e.timeStamp;
     };
 
     const onPointerMove = (e: PointerEvent) => {
@@ -272,13 +316,26 @@ export function ReelSection() {
       }
 
       if (!isDraggingRef.current) return;
+
+      // Track pointer velocity (px/ms) with light smoothing, for release momentum.
+      const moveDt = e.timeStamp - lastMoveTRef.current;
+      if (moveDt > 0) {
+        const instantV = (e.clientX - lastMoveXRef.current) / moveDt;
+        dragVelocityRef.current = dragVelocityRef.current * 0.6 + instantV * 0.4;
+        lastMoveXRef.current = e.clientX;
+        lastMoveTRef.current = e.timeStamp;
+      }
+
       offsetXRef.current = normalizeOffset(dragStartOffsetRef.current + dx);
       track.style.transform = `translate3d(${offsetXRef.current}px, 0, 0)`;
       e.preventDefault();
     };
 
+    const MAX_FLING = 3; // px/ms cap so a hard flick can't launch it absurdly fast
+
     const endDrag = (e: PointerEvent) => {
       if (dragPointerIdRef.current !== e.pointerId) return;
+      const wasDragging = isDraggingRef.current;
       isDraggingRef.current = false;
       pendingDragRef.current = false;
       dragPointerIdRef.current = null;
@@ -287,6 +344,13 @@ export function ReelSection() {
       } catch {
         // Ignore.
       }
+
+      if (!wasDragging) return;
+      // Carry the release velocity as momentum — unless the pointer was held
+      // still just before letting go (then it should simply stop where it is).
+      const idleMs = e.timeStamp - lastMoveTRef.current;
+      momentumRef.current =
+        idleMs > 80 ? 0 : Math.max(-MAX_FLING, Math.min(MAX_FLING, dragVelocityRef.current));
     };
 
     viewport.addEventListener("pointerdown", onPointerDown);
