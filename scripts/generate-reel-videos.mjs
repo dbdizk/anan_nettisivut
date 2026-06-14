@@ -5,26 +5,6 @@ const PROJECT_ROOT = process.cwd();
 const MEDIA_DIR = path.join(PROJECT_ROOT, "public", "media");
 const OUTPUT_FILE = path.join(PROJECT_ROOT, "data", "reel-videos.generated.ts");
 
-/** @param {string} dir */
-async function walk(dir) {
-  /** @type {string[]} */
-  const files = [];
-  const entries = await fs.readdir(dir, { withFileTypes: true });
-  for (const entry of entries) {
-    const abs = path.join(dir, entry.name);
-    if (entry.isDirectory()) {
-      files.push(...(await walk(abs)));
-    } else if (entry.isFile()) {
-      files.push(abs);
-    }
-  }
-  return files;
-}
-
-function toPosix(p) {
-  return p.split(path.sep).join("/");
-}
-
 function toUrlPath(posixPath) {
   return posixPath.split("/").map(encodeURIComponent).join("/");
 }
@@ -40,29 +20,67 @@ function titleFromFilename(filename) {
   return base.replace(/[-_]+/g, " ").trim().toUpperCase();
 }
 
-async function main() {
-  let mediaFilesAbs;
+const OPTIMIZED_DIR = path.join(MEDIA_DIR, "optimized");
+
+async function exists(p) {
   try {
-    mediaFilesAbs = await walk(MEDIA_DIR);
-  } catch (err) {
-    console.error(`[generate-reel-videos] Could not read ${MEDIA_DIR}`);
-    throw err;
+    await fs.access(p);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+async function listMp4Names(dir) {
+  try {
+    const entries = await fs.readdir(dir, { withFileTypes: true });
+    return entries
+      .filter((e) => e.isFile() && /\.(mp4|webm|mov)$/i.test(e.name))
+      .map((e) => e.name);
+  } catch {
+    return [];
+  }
+}
+
+async function main() {
+  // Discover clips by basename across the originals and the optimized/ outputs,
+  // so the build works whether or not the heavy originals are present (e.g. if
+  // they're excluded from deployment). Optimized src + poster win when available.
+  const originalNames = await listMp4Names(MEDIA_DIR);
+  const optimizedNames = await listMp4Names(OPTIMIZED_DIR);
+
+  const byBase = new Map();
+  for (const name of originalNames) {
+    const base = name.replace(/\.[^.]+$/, "");
+    byBase.set(base, { base, originalName: name });
+  }
+  for (const name of optimizedNames) {
+    const base = name.replace(/\.[^.]+$/, "");
+    const entry = byBase.get(base) ?? { base, originalName: null };
+    byBase.set(base, entry);
   }
 
-  const videos = mediaFilesAbs
-    .filter((p) => /\.(mp4|webm|mov)$/i.test(p))
-    .map((abs) => {
-      const rel = path.relative(MEDIA_DIR, abs);
-      const relPosix = toPosix(rel);
-      const urlPath = toUrlPath(relPosix);
-      const file = path.basename(relPosix);
-      return {
-        relPosix,
-        src: `/media/${urlPath}`,
-        title: titleFromFilename(file),
-      };
-    })
-    .sort((a, b) => a.relPosix.localeCompare(b.relPosix, "en"));
+  const videos = (
+    await Promise.all(
+      [...byBase.values()].map(async ({ base, originalName }) => {
+        const optimizedAbs = path.join(OPTIMIZED_DIR, `${base}.mp4`);
+        const posterAbs = path.join(OPTIMIZED_DIR, `${base}.jpg`);
+        const hasOptimized = await exists(optimizedAbs);
+        const hasPoster = await exists(posterAbs);
+
+        const srcRel = hasOptimized
+          ? `optimized/${base}.mp4`
+          : originalName;
+
+        return {
+          base,
+          src: `/media/${toUrlPath(srcRel)}`,
+          poster: hasPoster ? `/media/${toUrlPath(`optimized/${base}.jpg`)}` : undefined,
+          title: titleFromFilename(originalName ?? `${base}.mp4`),
+        };
+      })
+    )
+  ).sort((a, b) => a.base.localeCompare(b.base, "en"));
 
   const lines = [];
   lines.push("// AUTO-GENERATED FILE. DO NOT EDIT.");
@@ -74,6 +92,9 @@ async function main() {
     lines.push("  {");
     lines.push(`    id: ${JSON.stringify(String(i + 1))},`);
     lines.push(`    src: ${JSON.stringify(v.src)},`);
+    if (v.poster) {
+      lines.push(`    poster: ${JSON.stringify(v.poster)},`);
+    }
     lines.push(`    title: ${JSON.stringify(v.title)},`);
     lines.push("  },");
   }

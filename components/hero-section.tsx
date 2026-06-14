@@ -77,11 +77,11 @@ export function HeroSection() {
 
       <div className="hidden lg:flex items-center gap-6 shrink-0">
         <div className="flex items-center gap-3 text-gray-300">
-          <IconButton label="YouTube" href="https://www.youtube.com/@byanttipark">
-            <YoutubeIcon className="w-8 h-8" />
-          </IconButton>
           <IconButton label="Instagram" href="https://www.instagram.com/byanttipark/">
             <InstagramIcon className="w-8 h-8" />
+          </IconButton>
+          <IconButton label="YouTube" href="https://www.youtube.com/@byanttipark">
+            <YoutubeIcon className="w-8 h-8" />
           </IconButton>
         </div>
 
@@ -95,11 +95,11 @@ export function HeroSection() {
       <div className="w-full flex flex-col gap-3 lg:hidden">
         <div className="flex items-start justify-between gap-4">
           <div className="flex items-center gap-3 text-gray-300">
-            <IconButton label="YouTube" href="https://www.youtube.com/@byanttipark">
-              <YoutubeIcon className="w-7 h-7" />
-            </IconButton>
             <IconButton label="Instagram" href="https://www.instagram.com/byanttipark/">
               <InstagramIcon className="w-7 h-7" />
+            </IconButton>
+            <IconButton label="YouTube" href="https://www.youtube.com/@byanttipark">
+              <YoutubeIcon className="w-7 h-7" />
             </IconButton>
           </div>
 

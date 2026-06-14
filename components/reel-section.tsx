@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState, type RefObject } from "react";
+import { useEffect, useMemo, useRef, type RefObject } from "react";
 import { reelVideos, type Video } from "@/data/projects";
 
 function ReelVideoCard({
@@ -72,7 +72,11 @@ function ReelVideoCard({
       },
       {
         root: rootEl ?? null,
-        threshold: 0.6,
+        // Generous horizontal margin gives hysteresis: a card starts playing just
+        // before it scrolls into view and only pauses once it's well off-screen,
+        // which prevents play/pause flapping (and the stutter that causes).
+        rootMargin: "0px 50% 0px 50%",
+        threshold: 0,
       }
     );
 
@@ -88,7 +92,7 @@ function ReelVideoCard({
     <figure
       ref={cardRef}
       data-reel-card="true"
-      className="group flex-shrink-0 h-[clamp(20.5rem,66vh,46rem)] md:h-[clamp(22rem,72vh,46rem)] aspect-[9/16] bg-gray-900 rounded-lg overflow-hidden relative cursor-grab active:cursor-grabbing"
+      className="group flex-shrink-0 h-[clamp(20.5rem,66vh,46rem)] md:h-[max(22rem,68vh)] lg:h-[91.5%] aspect-[9/16] bg-gray-900 rounded-lg overflow-hidden relative cursor-grab active:cursor-grabbing"
       onPointerEnter={(e) => {
         if (e.pointerType === "mouse") onHoverChange(true);
       }}
@@ -102,7 +106,8 @@ function ReelVideoCard({
         muted
         playsInline
         loop
-        preload="metadata"
+        preload="auto"
+        poster={video.poster}
       >
         <source src={video.src} type="video/mp4" />
       </video>
@@ -123,217 +128,76 @@ function ReelVideoCard({
 export function ReelSection() {
   const viewportRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
+
   const rafRef = useRef<number | null>(null);
   const lastTsRef = useRef<number>(0);
   const loopWidthRef = useRef<number>(0);
   const offsetXRef = useRef<number>(0);
 
-  const mobileRafRef = useRef<number | null>(null);
-  const mobileLastTsRef = useRef<number>(0);
-  const mobileLoopWidthRef = useRef<number>(0);
-  const mobileScrollXRef = useRef<number>(0);
-  const mobileIsInteractingRef = useRef(false);
-  const mobileResumeTimerRef = useRef<number | null>(null);
-
-  const [isDesktop, setIsDesktop] = useState(false);
-
   const isPausedByHoverRef = useRef(false);
 
+  // Pointer drag (mouse + touch). We only hijack horizontal gestures so vertical
+  // swipes keep scrolling the page on mobile.
   const isDraggingRef = useRef(false);
+  const pendingDragRef = useRef(false);
+  const dragPointerIdRef = useRef<number | null>(null);
   const dragStartXRef = useRef<number>(0);
+  const dragStartYRef = useRef<number>(0);
   const dragStartOffsetRef = useRef<number>(0);
 
   const loopedVideos = useMemo(() => [...reelVideos, ...reelVideos], []);
 
-  useEffect(() => {
-    const mq = globalThis.matchMedia?.("(min-width: 1024px)");
-    if (!mq) return;
+  // Keep the transform offset within [-loopWidth, 0) so the duplicated track
+  // loops seamlessly in either direction.
+  const normalizeOffset = (x: number) => {
+    const loop = loopWidthRef.current;
+    if (loop <= 0) return x;
+    let next = ((x % loop) + loop) % loop;
+    if (next > 0) next -= loop;
+    return next;
+  };
 
-    const apply = () => setIsDesktop(mq.matches);
-    apply();
-    mq.addEventListener("change", apply);
-    return () => mq.removeEventListener("change", apply);
-  }, []);
-
-  useEffect(() => {
-    const viewport = viewportRef.current;
-    const track = trackRef.current;
-    if (!viewport || !track) return;
-
-    if (isDesktop) return;
-
-    const reduceMotion = globalThis.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false;
-    if (reduceMotion) return;
-
-    const clearResumeTimer = () => {
-      if (mobileResumeTimerRef.current) {
-        globalThis.clearTimeout(mobileResumeTimerRef.current);
-        mobileResumeTimerRef.current = null;
-      }
-    };
-
-    const markInteracting = () => {
-      mobileIsInteractingRef.current = true;
-      mobileScrollXRef.current = viewport.scrollLeft;
-      clearResumeTimer();
-    };
-
-    const scheduleResume = () => {
-      clearResumeTimer();
-      mobileResumeTimerRef.current = globalThis.setTimeout(() => {
-        mobileIsInteractingRef.current = false;
-        mobileScrollXRef.current = viewport.scrollLeft;
-      }, 1500) as unknown as number;
-    };
-
-    const updateLoopWidth = () => {
-      // Track contains 2 identical sets. Using `scrollWidth / 2` is inaccurate when flex `gap`
-      // exists between the last card of set 1 and the first card of set 2.
-      const cards = track.querySelectorAll<HTMLElement>('[data-reel-card="true"]');
-      const marker = cards[reelVideos.length];
-      const byMarker = marker?.offsetLeft ?? 0;
-      if (byMarker > 0) {
-        mobileLoopWidthRef.current = byMarker;
-        return;
-      }
-
-      const fallback = Math.floor(track.scrollWidth / 2);
-      mobileLoopWidthRef.current = Number.isFinite(fallback) ? fallback : 0;
-    };
-
-    // Measure a few times to catch late layout/media sizing.
-    updateLoopWidth();
-    const measureRaf1 = requestAnimationFrame(updateLoopWidth);
-    const measureRaf2 = requestAnimationFrame(() => requestAnimationFrame(updateLoopWidth));
-
-    // Keep our internal scroll position in sync.
-    mobileScrollXRef.current = viewport.scrollLeft;
-
-    const ro =
-      typeof ResizeObserver === "undefined"
-        ? null
-        : new ResizeObserver(() => {
-            updateLoopWidth();
-          });
-    ro?.observe(track);
-
-    viewport.addEventListener("pointerdown", markInteracting);
-    viewport.addEventListener("pointerup", scheduleResume);
-    viewport.addEventListener("pointercancel", scheduleResume);
-    viewport.addEventListener("pointerleave", scheduleResume);
-    viewport.addEventListener("touchstart", markInteracting, { passive: true });
-    viewport.addEventListener("touchend", scheduleResume, { passive: true });
-    viewport.addEventListener("touchcancel", scheduleResume, { passive: true });
-    const onScrollSync = () => {
-      mobileScrollXRef.current = viewport.scrollLeft;
-    };
-    viewport.addEventListener("scroll", onScrollSync, { passive: true });
-
-    const speedPxPerSecond = 18;
-
-    const tick = (ts: number) => {
-      const loop = mobileLoopWidthRef.current;
-      const maxScroll = viewport.scrollWidth - viewport.clientWidth;
-
-      if (maxScroll <= 1) {
-        // Nothing to scroll yet; re-measure in case layout isn't settled.
-        updateLoopWidth();
-        mobileRafRef.current = requestAnimationFrame(tick);
-        return;
-      }
-
-      if (loop <= 0) {
-        updateLoopWidth();
-        mobileRafRef.current = requestAnimationFrame(tick);
-        return;
-      }
-
-      if (mobileIsInteractingRef.current) {
-        mobileScrollXRef.current = viewport.scrollLeft;
-        mobileLastTsRef.current = ts;
-        mobileRafRef.current = requestAnimationFrame(tick);
-        return;
-      }
-
-      const last = mobileLastTsRef.current || ts;
-      mobileLastTsRef.current = ts;
-      const dt = Math.min(50, ts - last);
-
-      const delta = (speedPxPerSecond * dt) / 1000;
-      let next = mobileScrollXRef.current + delta;
-
-      // Prefer looping at `loop` when we have a duplicated track.
-      if (loop > 0) {
-        next = next % loop;
-      } else if (next >= maxScroll) {
-        next = 0;
-      }
-
-      mobileScrollXRef.current = next;
-      viewport.scrollLeft = next;
-
-      mobileRafRef.current = requestAnimationFrame(tick);
-    };
-
-    mobileRafRef.current = requestAnimationFrame(tick);
-
-    return () => {
-      clearResumeTimer();
-      viewport.removeEventListener("pointerdown", markInteracting);
-      viewport.removeEventListener("pointerup", scheduleResume);
-      viewport.removeEventListener("pointercancel", scheduleResume);
-      viewport.removeEventListener("pointerleave", scheduleResume);
-      viewport.removeEventListener("touchstart", markInteracting);
-      viewport.removeEventListener("touchend", scheduleResume);
-      viewport.removeEventListener("touchcancel", scheduleResume);
-      viewport.removeEventListener("scroll", onScrollSync);
-      ro?.disconnect();
-      cancelAnimationFrame(measureRaf1);
-      cancelAnimationFrame(measureRaf2);
-      if (mobileRafRef.current) cancelAnimationFrame(mobileRafRef.current);
-    };
-  }, [isDesktop]);
-
+  // Continuous auto-scroll via translate3d (same technique on every breakpoint).
   useEffect(() => {
     const viewport = viewportRef.current;
     const track = trackRef.current;
     if (!viewport || !track) return;
 
-    if (!isDesktop) return;
-
     const reduceMotion = globalThis.matchMedia?.("(prefers-reduced-motion: reduce)").matches ?? false;
-    if (reduceMotion) return;
 
     const updateLoopWidth = () => {
-      // Track contains 2 identical sets. Use the start of the 2nd set as the loop width
-      // to avoid gap-related drift.
+      // The track holds 2 identical sets; the start of the 2nd set is exactly one
+      // loop width (this avoids flex-gap drift you'd get from scrollWidth / 2).
       const cards = track.querySelectorAll<HTMLElement>('[data-reel-card="true"]');
       const marker = cards[reelVideos.length];
       const byMarker = marker?.offsetLeft ?? 0;
       loopWidthRef.current = byMarker > 0 ? byMarker : Math.floor(track.scrollWidth / 2);
       if (loopWidthRef.current > 0) {
-        // Normalize offset into [-loopWidth, 0)
-        const loop = loopWidthRef.current;
-        offsetXRef.current = ((offsetXRef.current % loop) + loop) % loop;
-        if (offsetXRef.current > 0) offsetXRef.current -= loop;
+        offsetXRef.current = normalizeOffset(offsetXRef.current);
         track.style.transform = `translate3d(${offsetXRef.current}px, 0, 0)`;
       }
     };
 
+    // Measure a few times to catch late layout / media sizing.
     updateLoopWidth();
-    const ro = new ResizeObserver(() => updateLoopWidth());
-    ro.observe(track);
+    const measureRaf1 = requestAnimationFrame(updateLoopWidth);
+    const measureRaf2 = requestAnimationFrame(() => requestAnimationFrame(updateLoopWidth));
+
+    const ro =
+      typeof ResizeObserver === "undefined" ? null : new ResizeObserver(() => updateLoopWidth());
+    ro?.observe(track);
 
     const speedPxPerSecond = 18; // slow, continuous
 
     const tick = (ts: number) => {
       const loopWidth = loopWidthRef.current;
       if (loopWidth <= 0) {
+        updateLoopWidth();
         rafRef.current = requestAnimationFrame(tick);
         return;
       }
 
-      if (isDraggingRef.current || isPausedByHoverRef.current) {
+      if (reduceMotion || isDraggingRef.current || isPausedByHoverRef.current) {
         lastTsRef.current = ts;
         rafRef.current = requestAnimationFrame(tick);
         return;
@@ -356,57 +220,68 @@ export function ReelSection() {
 
     return () => {
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
-      ro.disconnect();
+      cancelAnimationFrame(measureRaf1);
+      cancelAnimationFrame(measureRaf2);
+      ro?.disconnect();
     };
-  }, [isDesktop]);
+  }, []);
 
+  // Drag to scrub the carousel (mouse and touch), both directions.
   useEffect(() => {
     const viewport = viewportRef.current;
     const track = trackRef.current;
     if (!viewport || !track) return;
 
-    if (!isDesktop) return;
-
-    const normalizeOffset = (x: number) => {
-      const loop = loopWidthRef.current;
-      if (loop <= 0) return x;
-      let next = ((x % loop) + loop) % loop;
-      if (next > 0) next -= loop;
-      return next;
-    };
+    const DRAG_THRESHOLD = 6; // px of intent before we commit to a horizontal drag
 
     const onPointerDown = (e: PointerEvent) => {
-      // Desktop: mouse-only dragging (mobile uses native horizontal scroll).
-      if (e.pointerType !== "mouse") return;
-      if (e.button !== 0) return;
-
-      // Only allow dragging when the user starts the gesture on a reel card.
+      if (e.pointerType === "mouse" && e.button !== 0) return;
       if (!(e.target instanceof Element)) return;
       if (!e.target.closest('[data-reel-card="true"]')) return;
 
-      isDraggingRef.current = true;
+      pendingDragRef.current = true;
+      isDraggingRef.current = false;
+      dragPointerIdRef.current = e.pointerId;
       dragStartXRef.current = e.clientX;
+      dragStartYRef.current = e.clientY;
       dragStartOffsetRef.current = offsetXRef.current;
-      try {
-        viewport.setPointerCapture(e.pointerId);
-      } catch {
-        // Ignore if capture fails.
-      }
-      e.preventDefault();
     };
 
     const onPointerMove = (e: PointerEvent) => {
-      if (!isDraggingRef.current) return;
+      if (dragPointerIdRef.current !== e.pointerId) return;
+
       const dx = e.clientX - dragStartXRef.current;
-      const next = normalizeOffset(dragStartOffsetRef.current + dx);
-      offsetXRef.current = next;
-      track.style.transform = `translate3d(${next}px, 0, 0)`;
+      const dy = e.clientY - dragStartYRef.current;
+
+      // Decide intent: only capture if the gesture is clearly horizontal, so a
+      // vertical swipe is left to the browser (page scroll on mobile).
+      if (pendingDragRef.current && !isDraggingRef.current) {
+        if (Math.abs(dx) < DRAG_THRESHOLD && Math.abs(dy) < DRAG_THRESHOLD) return;
+        if (Math.abs(dy) >= Math.abs(dx)) {
+          pendingDragRef.current = false;
+          dragPointerIdRef.current = null;
+          return;
+        }
+        isDraggingRef.current = true;
+        pendingDragRef.current = false;
+        try {
+          viewport.setPointerCapture(e.pointerId);
+        } catch {
+          // Ignore if capture fails.
+        }
+      }
+
+      if (!isDraggingRef.current) return;
+      offsetXRef.current = normalizeOffset(dragStartOffsetRef.current + dx);
+      track.style.transform = `translate3d(${offsetXRef.current}px, 0, 0)`;
       e.preventDefault();
     };
 
     const endDrag = (e: PointerEvent) => {
-      if (!isDraggingRef.current) return;
+      if (dragPointerIdRef.current !== e.pointerId) return;
       isDraggingRef.current = false;
+      pendingDragRef.current = false;
+      dragPointerIdRef.current = null;
       try {
         viewport.releasePointerCapture(e.pointerId);
       } catch {
@@ -427,45 +302,34 @@ export function ReelSection() {
       viewport.removeEventListener("pointercancel", endDrag);
       viewport.removeEventListener("pointerleave", endDrag);
     };
-  }, [isDesktop]);
+  }, []);
 
   return (
     <section className="w-full flex-none lg:flex-1 min-h-0 overflow-hidden bg-[#0a0a0a] relative pb-0">
-      <div className="pointer-events-none absolute inset-y-0 left-0 w-10 md:w-16 bg-gradient-to-r from-[#0a0a0a] to-transparent" />
-      <div className="pointer-events-none absolute inset-y-0 right-0 w-10 md:w-16 bg-gradient-to-l from-[#0a0a0a] to-transparent" />
+      <div className="pointer-events-none absolute inset-y-0 left-0 w-10 md:w-16 bg-gradient-to-r from-[#0a0a0a] to-transparent z-10" />
+      <div className="pointer-events-none absolute inset-y-0 right-0 w-10 md:w-16 bg-gradient-to-l from-[#0a0a0a] to-transparent z-10" />
 
-      {isDesktop ? (
+      <div
+        ref={viewportRef}
+        className="no-scrollbar h-auto lg:h-full lg:min-h-0 overflow-hidden px-6 md:px-12"
+        style={{ touchAction: "pan-y" }}
+      >
         <div
-          ref={viewportRef}
-          className="no-scrollbar h-full min-h-0 overflow-hidden px-6 md:px-12"
-          style={{ touchAction: "pan-y" }}
-          onWheel={(e) => {
-            // Desktop: wheel should not move the carousel.
-            e.preventDefault();
-          }}
+          ref={trackRef}
+          className="h-auto lg:h-full lg:min-h-0 flex items-start gap-3 md:gap-4 w-max will-change-transform"
         >
-          <div ref={trackRef} className="h-full min-h-0 flex items-start gap-3 md:gap-4 w-max will-change-transform">
-            {loopedVideos.map((video, idx) => (
-              <ReelVideoCard
-                key={`${video.id}-${idx}`}
-                video={video}
-                rootRef={viewportRef}
-                onHoverChange={(isHovering) => {
-                  isPausedByHoverRef.current = isHovering;
-                }}
-              />
-            ))}
-          </div>
+          {loopedVideos.map((video, idx) => (
+            <ReelVideoCard
+              key={`${video.id}-${idx}`}
+              video={video}
+              rootRef={viewportRef}
+              onHoverChange={(isHovering) => {
+                isPausedByHoverRef.current = isHovering;
+              }}
+            />
+          ))}
         </div>
-      ) : (
-        <div ref={viewportRef} className="no-scrollbar h-auto overflow-x-auto overflow-y-hidden px-6 md:px-12">
-          <div ref={trackRef} className="h-auto flex items-start gap-3 w-max">
-            {loopedVideos.map((video, idx) => (
-              <ReelVideoCard key={`${video.id}-${idx}`} video={video} rootRef={viewportRef} onHoverChange={() => {}} />
-            ))}
-          </div>
-        </div>
-      )}
+      </div>
     </section>
   );
 }

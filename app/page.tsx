@@ -12,11 +12,12 @@ export default function Home() {
           <ReelSection />
 
           <footer className="w-full px-6 md:px-12 min-h-10 pt-4 pb-0 md:min-h-0 md:pb-6 md:pt-4 flex flex-col items-center justify-center flex-1 lg:flex-none">
-            <div className="text-gray-200 tracking-[0.3em] text-sm md:text-base">ABOUT ME</div>
+            <div className="text-gray-200 tracking-[0.3em] text-sm md:text-base lg:text-[max(1rem,calc(0.1rem+1.3vh))]">ABOUT ME</div>
             <div className="mt-0 md:mt-2 text-gray-400 animate-float">
               <svg
                 width="18"
                 height="18"
+                className="lg:w-[max(1.125rem,calc(0.1rem+1.45vh))] lg:h-[max(1.125rem,calc(0.1rem+1.45vh))]"
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
