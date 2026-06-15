@@ -59,6 +59,9 @@ async function main() {
   // they're excluded from deployment). Optimized src + poster win when available.
   const originalNames = await listMp4Names(MEDIA_DIR);
   const optimizedNames = await listMp4Names(OPTIMIZED_DIR);
+  const fullByBase = new Map(
+    (await listMp4Names(FULL_DIR)).map((n) => [n.replace(/\.[^.]+$/, ""), n])
+  );
 
   const byBase = new Map();
   for (const name of originalNames) {
@@ -89,8 +92,8 @@ async function main() {
           hasOptimized && originalName ? `/media/${toUrlPath(originalName)}` : undefined;
 
         // With-audio version for the click-to-play modal, if one was provided.
-        const hasFull = await exists(path.join(FULL_DIR, `${base}.mp4`));
-        const srcFull = hasFull ? `/media/${toUrlPath(`full/${base}.mp4`)}` : undefined;
+        const fullName = fullByBase.get(base);
+        const srcFull = fullName ? `/media/${toUrlPath(`full/${fullName}`)}` : undefined;
 
         return {
           base,

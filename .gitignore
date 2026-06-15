@@ -39,3 +39,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Large full modal videos (hosted on R2, not in repo)
+public/media/full/

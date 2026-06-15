@@ -246,24 +246,26 @@ export function MusicPlayer() {
 						<div className="text-[0.75em] text-gray-400 truncate">{currentTrack.artist}</div>
 					</div>
 
-					<div className="flex items-center gap-[0.35em]">
+					<div className="group/vol relative flex items-center">
 						<IconButton label={isMuted ? "Unmute" : "Mute"} pressed={isMuted} onClick={toggleMute}>
 							{isMuted ? <VolumeX className="h-[1.25em] w-[1.25em]" /> : <Volume2 className="h-[1.25em] w-[1.25em]" />}
 						</IconButton>
-						<input
-							aria-label="Volume"
-							type="range"
-							min={0}
-							max={1}
-							step={0.01}
-							value={isMuted ? 0 : volume}
-							onChange={(e) => {
-								const v = Number(e.target.value);
-								setVolume(v);
-								if (isMuted && v > 0) setIsMuted(false);
-							}}
-							className="hidden lg:block w-[4em] h-[0.125em] accent-gray-200 cursor-pointer"
-						/>
+						<div className="pointer-events-none absolute right-full top-1/2 z-20 hidden -translate-y-1/2 pr-[0.6em] opacity-0 transition-opacity group-hover/vol:pointer-events-auto group-hover/vol:opacity-100 lg:block">
+							<input
+								aria-label="Volume"
+								type="range"
+								min={0}
+								max={1}
+								step={0.01}
+								value={isMuted ? 0 : volume}
+								onChange={(e) => {
+									const v = Number(e.target.value);
+									setVolume(v);
+									if (isMuted && v > 0) setIsMuted(false);
+								}}
+								className="h-[0.125em] w-[5em] cursor-pointer accent-white"
+							/>
+						</div>
 					</div>
 				</div>
 

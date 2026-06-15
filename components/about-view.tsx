@@ -65,14 +65,12 @@ export function AboutView() {
     <div className="relative min-h-screen lg:h-screen w-full bg-[#0a0a0a] text-white overflow-x-hidden overflow-y-auto lg:overflow-hidden">
       <div className="pointer-events-none absolute inset-0 hidden lg:block overflow-hidden">
         <div className="h-full w-[200%] flex motion-reduce:animate-none animate-about-bg opacity-20">
-          <div
-            className="h-full w-1/2 bg-cover bg-center"
-            style={{ backgroundImage: "url('/bg/nettisivu%20tausta%202.png')" }}
-          />
-          <div
-            className="h-full w-1/2 bg-cover bg-center"
-            style={{ backgroundImage: "url('/bg/nettisivu%20tausta%202.png')" }}
-          />
+          <div className="relative h-full w-1/2">
+            <Image src="/bg/about-bg.png" alt="" fill sizes="100vw" className="object-cover" />
+          </div>
+          <div className="relative h-full w-1/2">
+            <Image src="/bg/about-bg.png" alt="" fill sizes="100vw" className="object-cover" />
+          </div>
         </div>
       </div>
 

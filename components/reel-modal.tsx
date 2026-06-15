@@ -8,9 +8,8 @@ export function ReelModal({ video, onClose }: { video: Video; onClose: () => voi
   const videoRef = useRef<HTMLVideoElement>(null);
   const [mounted, setMounted] = useState(false);
 
-  // Prefer the with-audio version; fall back to the (silent) original / optimized.
-  const source = video.srcFull ?? video.srcHigh ?? video.src;
   const title = video.title ?? "Video";
+  const source = video.srcFull ?? video.srcHigh ?? video.src;
 
   useEffect(() => {
     setMounted(true);
@@ -22,19 +21,15 @@ export function ReelModal({ video, onClose }: { video: Video; onClose: () => voi
     };
     document.addEventListener("keydown", onKey);
     const prevOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden"; // lock background scroll while open
+    document.body.style.overflow = "hidden";
     return () => {
       document.removeEventListener("keydown", onKey);
       document.body.style.overflow = prevOverflow;
     };
   }, [onClose]);
 
-  // Try to start playback with sound. Opening from a tap gives us user activation,
-  // so this usually succeeds; if the browser still blocks it, the controls remain.
   useEffect(() => {
-    const el = videoRef.current;
-    if (!el) return;
-    el.play().catch(() => {});
+    videoRef.current?.play().catch(() => {});
   }, []);
 
   if (!mounted) return null;
@@ -51,7 +46,6 @@ export function ReelModal({ video, onClose }: { video: Video; onClose: () => voi
         className="flex max-h-[92vh] max-w-[94vw] flex-col overflow-hidden rounded-xl border border-gray-700/60 bg-[#0a0a0a] shadow-2xl shadow-black/70"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Title bar */}
         <div className="relative flex h-9 shrink-0 items-center justify-center border-b border-black/60 bg-gradient-to-b from-[#272727] to-[#161616] px-12">
           <span className="truncate text-sm font-semibold tracking-wide text-gray-200">{title}</span>
           <button
@@ -62,11 +56,11 @@ export function ReelModal({ video, onClose }: { video: Video; onClose: () => voi
           />
         </div>
 
-        {/* Video */}
+        {/* Sizes to the video's native resolution, capped to the viewport. */}
         <video
           ref={videoRef}
           src={source}
-          className="max-h-[calc(92vh-2.25rem)] w-auto max-w-[94vw] bg-black object-contain"
+          className="max-h-[calc(92vh-2.25rem)] max-w-[94vw] bg-black object-contain"
           controls
           autoPlay
           playsInline
