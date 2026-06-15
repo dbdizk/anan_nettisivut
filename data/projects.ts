@@ -24,8 +24,8 @@ const R2_FILES: Record<string, string> = {
   "NIGHTCLUB DOM": "DOM_MP4.mp4",
   KLANGI: "KLANGI_MP4.mp4",
   "ARC LAB": "ARCLAB_MP4.mp4",
-  "HILDÉN & KAIRA": "",
-  "WAVE VENTURES": "",
+  "HILDÉN & KAIRA": "hk.mov",
+  "WAVE VENTURES": "WAVE_MP4.mov",
 };
 
 export const reelVideos: Video[] = generatedReelVideos.map((v) => {
