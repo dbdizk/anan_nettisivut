@@ -80,9 +80,6 @@ export function HeroSection() {
           <IconButton label="Instagram" href="https://www.instagram.com/byanttipark/">
             <InstagramIcon className="w-8 h-8" />
           </IconButton>
-          <IconButton label="YouTube" href="https://www.youtube.com/@byanttipark">
-            <YoutubeIcon className="w-8 h-8" />
-          </IconButton>
         </div>
 
         <div className="text-right leading-none">
@@ -97,9 +94,6 @@ export function HeroSection() {
           <div className="flex items-center gap-3 text-gray-300">
             <IconButton label="Instagram" href="https://www.instagram.com/byanttipark/">
               <InstagramIcon className="w-7 h-7" />
-            </IconButton>
-            <IconButton label="YouTube" href="https://www.youtube.com/@byanttipark">
-              <YoutubeIcon className="w-7 h-7" />
             </IconButton>
           </div>
 

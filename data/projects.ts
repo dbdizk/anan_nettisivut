@@ -5,6 +5,8 @@ export type Video = {
   src: string;
   /** Full-quality original, used as the desktop default. Falls back to `src`. */
   srcHigh?: string;
+  /** With-audio version for the click-to-play modal. Falls back to `srcHigh`/`src`. */
+  srcFull?: string;
   poster?: string;
   title?: string;
   clipStart?: number;

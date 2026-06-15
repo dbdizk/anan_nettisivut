@@ -109,9 +109,6 @@ export function AboutView() {
                     <IconButton label="Instagram" href="https://www.instagram.com/byanttipark/">
                       <InstagramIcon className="w-7 h-7 md:w-8 md:h-8 lg:w-[max(2rem,2.96vh)] lg:h-[max(2rem,2.96vh)]" />
                     </IconButton>
-                    <IconButton label="YouTube" href="https://www.youtube.com/@byanttipark">
-                      <YoutubeIcon className="w-7 h-7 md:w-8 md:h-8 lg:w-[max(2rem,2.96vh)] lg:h-[max(2rem,2.96vh)]" />
-                    </IconButton>
                   </div>
 
                   <div className="text-base md:text-lg lg:text-[max(1.125rem,1.67vh)] text-gray-400 tracking-wide leading-none">byanttipark@gmail.com</div>

@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState, type RefObject } from "react";
 import { reelVideos, type Video } from "@/data/projects";
+import { ReelModal } from "@/components/reel-modal";
 
 function ReelVideoCard({
   video,
@@ -100,7 +101,8 @@ function ReelVideoCard({
     <figure
       ref={cardRef}
       data-reel-card="true"
-      className="group flex-shrink-0 h-[clamp(20.5rem,66vh,46rem)] md:h-[max(22rem,68vh)] lg:h-[91.5%] aspect-[9/16] bg-gray-900 rounded-lg overflow-hidden relative cursor-grab active:cursor-grabbing"
+      data-video-id={video.id}
+      className="group flex-shrink-0 h-[clamp(20.5rem,66vh,46rem)] md:h-[max(22rem,68vh)] lg:h-[91.5%] aspect-[9/16] bg-gray-900 rounded-lg overflow-hidden relative cursor-pointer active:cursor-grabbing"
       onPointerEnter={(e) => {
         if (e.pointerType === "mouse") onHoverChange(true);
       }}
@@ -161,6 +163,9 @@ export function ReelSection() {
   const lastMoveTRef = useRef<number>(0);
 
   const loopedVideos = useMemo(() => [...reelVideos, ...reelVideos], []);
+
+  // The clip opened in the click-to-play modal (null = closed).
+  const [activeVideo, setActiveVideo] = useState<Video | null>(null);
 
   // PC (>=1024px) plays the full-quality originals; phones/tablets keep the
   // lighter optimized clips. Defaults to false so SSR matches the mobile output.
@@ -345,7 +350,15 @@ export function ReelSection() {
         // Ignore.
       }
 
-      if (!wasDragging) return;
+      if (!wasDragging) {
+        // No drag committed => it was a tap/click: open that clip in the modal.
+        const card =
+          e.target instanceof Element ? e.target.closest('[data-reel-card="true"]') : null;
+        const id = card?.getAttribute("data-video-id");
+        const clip = id ? reelVideos.find((v) => v.id === id) : null;
+        if (clip) setActiveVideo(clip);
+        return;
+      }
       // Carry the release velocity as momentum — unless the pointer was held
       // still just before letting go (then it should simply stop where it is).
       const idleMs = e.timeStamp - lastMoveTRef.current;
@@ -387,6 +400,7 @@ export function ReelSection() {
               key={`${video.id}-${idx}`}
               video={video}
               rootRef={viewportRef}
+              highQuality={highQuality}
               onHoverChange={(isHovering) => {
                 isPausedByHoverRef.current = isHovering;
               }}
@@ -394,6 +408,10 @@ export function ReelSection() {
           ))}
         </div>
       </div>
+
+      {activeVideo ? (
+        <ReelModal video={activeVideo} onClose={() => setActiveVideo(null)} />
+      ) : null}
     </section>
   );
 }

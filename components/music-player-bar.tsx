@@ -53,7 +53,8 @@ export function MusicPlayer() {
 	const sourceNodeRef = useRef<MediaElementAudioSourceNode | null>(null);
 	const compressorRef = useRef<DynamicsCompressorNode | null>(null);
 	const gainNodeRef = useRef<GainNode | null>(null);
-	const playbackGain = 0.58;
+	const DEFAULT_VOLUME = 0.58;
+	const volumeRef = useRef(DEFAULT_VOLUME);
 
 	const ensureAudioGraph = () => {
 		const el = audioRef.current;
@@ -79,7 +80,7 @@ export function MusicPlayer() {
 			compressorRef.current.ratio.value = 12;
 			compressorRef.current.attack.value = 0.003;
 			compressorRef.current.release.value = 0.2;
-			gainNodeRef.current.gain.value = playbackGain;
+			gainNodeRef.current.gain.value = volumeRef.current;
 
 			sourceNodeRef.current.connect(compressorRef.current);
 			compressorRef.current.connect(gainNodeRef.current);
@@ -93,6 +94,7 @@ export function MusicPlayer() {
 	const [index, setIndex] = useState(0);
 	const [isPlaying, setIsPlaying] = useState(false);
 	const [isMuted, setIsMuted] = useState(false);
+	const [volume, setVolume] = useState(DEFAULT_VOLUME);
 	const [currentTime, setCurrentTime] = useState(0);
 	const [duration, setDuration] = useState(0);
 
@@ -194,10 +196,12 @@ export function MusicPlayer() {
 		if (!el) return;
 		el.muted = isMuted;
 		el.volume = 1;
+		volumeRef.current = volume;
 		if (gainNodeRef.current) {
-			gainNodeRef.current.gain.value = playbackGain;
+			// Volume rides through the Web Audio gain stage; mute is handled by el.muted.
+			gainNodeRef.current.gain.value = volume;
 		}
-	}, [isMuted, playbackGain]);
+	}, [isMuted, volume]);
 
 	useEffect(() => {
 		const el = audioRef.current;
@@ -242,10 +246,24 @@ export function MusicPlayer() {
 						<div className="text-[0.75em] text-gray-400 truncate">{currentTrack.artist}</div>
 					</div>
 
-					<div className="flex items-center">
+					<div className="flex items-center gap-[0.35em]">
 						<IconButton label={isMuted ? "Unmute" : "Mute"} pressed={isMuted} onClick={toggleMute}>
 							{isMuted ? <VolumeX className="h-[1.25em] w-[1.25em]" /> : <Volume2 className="h-[1.25em] w-[1.25em]" />}
 						</IconButton>
+						<input
+							aria-label="Volume"
+							type="range"
+							min={0}
+							max={1}
+							step={0.01}
+							value={isMuted ? 0 : volume}
+							onChange={(e) => {
+								const v = Number(e.target.value);
+								setVolume(v);
+								if (isMuted && v > 0) setIsMuted(false);
+							}}
+							className="hidden lg:block w-[4em] h-[0.125em] accent-gray-200 cursor-pointer"
+						/>
 					</div>
 				</div>
 

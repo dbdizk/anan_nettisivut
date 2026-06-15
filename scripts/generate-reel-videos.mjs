@@ -29,6 +29,9 @@ function titleFromFilename(filename) {
 }
 
 const OPTIMIZED_DIR = path.join(MEDIA_DIR, "optimized");
+// Full-quality, WITH-AUDIO versions for the click-to-play modal. Drop re-exports
+// that include sound here (same base filename) and re-run `npm run gen:reel`.
+const FULL_DIR = path.join(MEDIA_DIR, "full");
 
 async function exists(p) {
   try {
@@ -85,10 +88,15 @@ async function main() {
         const srcHigh =
           hasOptimized && originalName ? `/media/${toUrlPath(originalName)}` : undefined;
 
+        // With-audio version for the click-to-play modal, if one was provided.
+        const hasFull = await exists(path.join(FULL_DIR, `${base}.mp4`));
+        const srcFull = hasFull ? `/media/${toUrlPath(`full/${base}.mp4`)}` : undefined;
+
         return {
           base,
           src: `/media/${toUrlPath(srcRel)}`,
           srcHigh,
+          srcFull,
           poster: hasPoster ? `/media/${toUrlPath(`optimized/${base}.jpg`)}` : undefined,
           title: TITLE_OVERRIDES[base] ?? titleFromFilename(originalName ?? `${base}.mp4`),
         };
@@ -108,6 +116,9 @@ async function main() {
     lines.push(`    src: ${JSON.stringify(v.src)},`);
     if (v.srcHigh) {
       lines.push(`    srcHigh: ${JSON.stringify(v.srcHigh)},`);
+    }
+    if (v.srcFull) {
+      lines.push(`    srcFull: ${JSON.stringify(v.srcFull)},`);
     }
     if (v.poster) {
       lines.push(`    poster: ${JSON.stringify(v.poster)},`);
