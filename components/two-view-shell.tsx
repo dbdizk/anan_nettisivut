@@ -21,9 +21,7 @@ export function TwoViewShell({ landing, about }: TwoViewShellProps) {
   }, []);
 
   useEffect(() => {
-    const mq = globalThis.matchMedia?.(
-      "(min-width: 1024px), (orientation: landscape) and (min-width: 560px)"
-    );
+    const mq = globalThis.matchMedia?.("(min-width: 1024px)");
     if (!mq) return;
 
     const apply = () => {

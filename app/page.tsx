@@ -7,7 +7,7 @@ export default function Home() {
   return (
     <TwoViewShell
       landing={
-        <div className="relative w-full h-screen flex flex-col bg-[#0a0a0a] text-white overflow-hidden">
+        <div className="relative w-full h-screen [@media(orientation:landscape)_and_(max-width:1023px)]:h-auto [@media(orientation:landscape)_and_(max-width:1023px)]:min-h-screen flex flex-col bg-[#0a0a0a] text-white overflow-hidden [@media(orientation:landscape)_and_(max-width:1023px)]:overflow-visible">
           <HeroSection />
           <ReelSection />
 
