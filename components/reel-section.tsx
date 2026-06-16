@@ -161,6 +161,25 @@ export function ReelSection() {
   // The clip opened in the click-to-play modal (null = closed).
   const [activeVideo, setActiveVideo] = useState<Video | null>(null);
 
+  // While the modal is open, freeze the carousel and pause its videos so they
+  // aren't decoding behind the (full-resolution) modal clip.
+  useEffect(() => {
+    const track = trackRef.current;
+    const viewport = viewportRef.current;
+    if (!track || !viewport) return;
+    const vids = Array.from(track.querySelectorAll("video"));
+    isPausedByHoverRef.current = !!activeVideo;
+    if (activeVideo) {
+      vids.forEach((v) => v.pause());
+    } else {
+      const vp = viewport.getBoundingClientRect();
+      vids.forEach((v) => {
+        const r = v.getBoundingClientRect();
+        if (r.right > vp.left && r.left < vp.right) v.play().catch(() => {});
+      });
+    }
+  }, [activeVideo]);
+
   // Keep the transform offset within [-loopWidth, 0) so the duplicated track
   // loops seamlessly in either direction.
   const normalizeOffset = (x: number) => {

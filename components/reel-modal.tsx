@@ -36,7 +36,7 @@ export function ReelModal({ video, onClose }: { video: Video; onClose: () => voi
 
   return createPortal(
     <div
-      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/75 p-4 backdrop-blur-sm"
+      className="fixed inset-0 z-[100] flex items-center justify-center bg-black/95 p-4"
       onClick={onClose}
       role="dialog"
       aria-modal="true"

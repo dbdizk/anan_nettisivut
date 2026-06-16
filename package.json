@@ -6,6 +6,7 @@
     "gen:audio": "node scripts/generate-audio-tracks.mjs",
     "gen:reel": "node scripts/generate-reel-videos.mjs",
     "optimize:reel": "node scripts/optimize-reel.mjs",
+    "optimize:full": "node scripts/optimize-full.mjs",
     "predev": "npm run gen:reel && npm run gen:audio",
     "prebuild": "npm run gen:reel && npm run gen:audio",
     "dev": "next dev",
