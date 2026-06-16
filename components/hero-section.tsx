@@ -64,17 +64,24 @@ function YoutubeIcon({ className }: { className?: string }) {
 
 export function HeroSection() {
   return (
-    <header className="w-full bg-[#0a0a0a] p-[18px] flex flex-col items-start gap-4 lg:flex-row lg:items-center lg:justify-between lg:gap-6 lg:sticky lg:top-0 z-40">
-      <div className="flex items-baseline gap-3 sm:gap-5 shrink-0">
-        <h1 className="text-5xl sm:text-6xl md:text-8xl lg:text-9xl font-normal tracking-tight leading-none">ANTTIPARK</h1>
-        <p className="text-sm sm:text-base md:text-3xl text-gray-400 tracking-wide leading-none">Visual Designer</p>
+    <header className="w-full bg-[#0a0a0a] p-[18px] flex flex-col items-stretch gap-3 lg:flex-row lg:items-center lg:justify-between lg:gap-6 lg:sticky lg:top-0 z-40">
+      {/* Mobile: centered contact line on top */}
+      <p className="lg:hidden text-center text-sm tracking-[0.12em] uppercase text-gray-200 leading-none">
+        Contact me <span className="text-gray-400">byanttipark@gmail.com</span>
+      </p>
+
+      {/* Title: centered + stacked on mobile, inline baseline on desktop */}
+      <div className="flex flex-col items-center text-center gap-1 lg:flex-row lg:items-baseline lg:text-left lg:gap-5 shrink-0">
+        <h1 className="text-[clamp(3rem,17.5vw,6rem)] lg:text-9xl font-normal tracking-tight leading-none">ANTTIPARK</h1>
+        <p className="text-base md:text-3xl text-gray-400 tracking-wide leading-none">Visual Designer</p>
       </div>
 
-      {/* Desktop: keep the existing layout */}
+      {/* Desktop: player */}
       <div className="hidden lg:block">
         <MusicPlayer />
       </div>
 
+      {/* Desktop: socials + contact */}
       <div className="hidden lg:flex items-center gap-6 shrink-0">
         <div className="flex items-center gap-3 text-gray-300">
           <IconButton label="Instagram" href="https://www.instagram.com/byanttipark/">
@@ -88,21 +95,8 @@ export function HeroSection() {
         </div>
       </div>
 
-      {/* Mobile: socials + email, then player */}
-      <div className="w-full flex flex-col gap-3 lg:hidden">
-        <div className="flex items-start justify-between gap-4">
-          <div className="flex items-center gap-3 text-gray-300">
-            <IconButton label="Instagram" href="https://www.instagram.com/byanttipark/">
-              <InstagramIcon className="w-7 h-7" />
-            </IconButton>
-          </div>
-
-          <div className="text-right leading-none">
-            <p className="text-base text-gray-200 tracking-wide">Contact me</p>
-            <p className="text-sm text-gray-400 tracking-wide leading-none">byanttipark@gmail.com</p>
-          </div>
-        </div>
-
+      {/* Mobile: player */}
+      <div className="w-full lg:hidden">
         <MusicPlayer />
       </div>
     </header>

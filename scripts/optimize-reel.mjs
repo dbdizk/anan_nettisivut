@@ -21,7 +21,7 @@ const OUT_DIR = path.join(MEDIA_DIR, "optimized");
 // displays while cutting decode cost vs. full 4K source. Lower this (e.g. 900)
 // for even lighter mobile playback.
 const MAX_HEIGHT = 1080;
-const CRF = 30; // 28-32 is a good range; higher = smaller + softer.
+const CRF = 21; // ~19-23: visually near-lossless colour, still a fraction of the source bitrate.
 const POSTER_HEIGHT = 720;
 
 function run(args) {

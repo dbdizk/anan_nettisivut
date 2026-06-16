@@ -7,20 +7,17 @@ import { ReelModal } from "@/components/reel-modal";
 function ReelVideoCard({
   video,
   rootRef,
-  highQuality,
   onHoverChange,
 }: {
   video: Video;
   rootRef: RefObject<HTMLDivElement | null>;
-  highQuality: boolean;
   onHoverChange: (isHovering: boolean) => void;
 }) {
   const cardRef = useRef<HTMLDivElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
 
-  // Desktop plays the full-quality original (better colors); phones keep the
-  // lighter optimized clip. The poster covers the load until playback starts.
-  const source = highQuality && video.srcHigh ? video.srcHigh : video.src;
+  // Lightweight optimized clip everywhere; the poster covers the brief load.
+  const source = video.src;
 
   useEffect(() => {
     const cardEl = cardRef.current;
@@ -82,7 +79,7 @@ function ReelVideoCard({
         // Generous horizontal margin gives hysteresis: a card starts playing just
         // before it scrolls into view and only pauses once it's well off-screen,
         // which prevents play/pause flapping (and the stutter that causes).
-        rootMargin: "0px 50% 0px 50%",
+        rootMargin: "0px 8% 0px 8%",
         threshold: 0,
       }
     );
@@ -93,8 +90,6 @@ function ReelVideoCard({
       videoEl.removeEventListener("loadedmetadata", onLoadedMetadata);
       videoEl.removeEventListener("timeupdate", onTimeUpdate);
     };
-    // `source` is included so playback re-initializes (and resumes) when the
-    // quality swaps between the optimized and full-quality file.
   }, [rootRef, video.clipEnd, video.clipStart, source]);
 
   return (
@@ -112,12 +107,11 @@ function ReelVideoCard({
     >
       <video
         ref={videoRef}
-        key={source}
         className="h-full w-full object-cover transition-[filter] duration-300 ease-out group-hover:blur-sm group-hover:brightness-75"
         muted
         playsInline
         loop
-        preload={highQuality ? "metadata" : "auto"}
+        preload="auto"
         poster={video.poster}
         src={source}
       />
@@ -166,19 +160,6 @@ export function ReelSection() {
 
   // The clip opened in the click-to-play modal (null = closed).
   const [activeVideo, setActiveVideo] = useState<Video | null>(null);
-
-  // PC (>=1024px) plays the full-quality originals; phones/tablets keep the
-  // lighter optimized clips. Defaults to false so SSR matches the mobile output.
-  const [highQuality, setHighQuality] = useState(false);
-
-  useEffect(() => {
-    const mq = globalThis.matchMedia?.("(min-width: 1024px)");
-    if (!mq) return;
-    const apply = () => setHighQuality(mq.matches);
-    apply();
-    mq.addEventListener("change", apply);
-    return () => mq.removeEventListener("change", apply);
-  }, []);
 
   // Keep the transform offset within [-loopWidth, 0) so the duplicated track
   // loops seamlessly in either direction.
@@ -400,7 +381,6 @@ export function ReelSection() {
               key={`${video.id}-${idx}`}
               video={video}
               rootRef={viewportRef}
-              highQuality={highQuality}
               onHoverChange={(isHovering) => {
                 isPausedByHoverRef.current = isHovering;
               }}
