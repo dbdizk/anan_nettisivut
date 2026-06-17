@@ -29,6 +29,9 @@ export function ReelModal({ video, onClose }: { video: Video; onClose: () => voi
   }, [onClose]);
 
   useEffect(() => {
+    // Tell the music player to stop so it can't keep running (and auto-advance
+    // to the next track) underneath the modal's own audio.
+    window.dispatchEvent(new Event("reel-modal-open"));
     videoRef.current?.play().catch(() => {});
   }, []);
 

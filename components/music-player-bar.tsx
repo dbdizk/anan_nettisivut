@@ -219,6 +219,17 @@ export function MusicPlayer() {
 		}
 	}, [index]);
 
+	useEffect(() => {
+		const stop = () => {
+			pendingPlayRef.current = false;
+			const el = audioRef.current;
+			if (el) el.pause();
+			setIsPlaying(false);
+		};
+		window.addEventListener("reel-modal-open", stop);
+		return () => window.removeEventListener("reel-modal-open", stop);
+	}, []);
+
 	const seekTo = (t: number) => {
 		const el = audioRef.current;
 		if (!el) return;
@@ -226,7 +237,7 @@ export function MusicPlayer() {
 	};
 
 	return (
-		<div className="text-white [font-size:max(1rem,calc(0.5rem+0.74vh))] h-[3.5em] w-full max-w-[32.5em] lg:w-[min(32.5em,40vw)]">
+		<div className="text-white [font-size:max(1rem,calc(0.5rem+0.74vh))] h-[3.5em] w-full max-w-[32.5em] mx-auto lg:mx-0 lg:w-[min(32.5em,40vw)]">
 			<div className="relative h-full">
 				<div className="h-full px-[0.75em] flex items-center justify-between gap-[0.75em] pb-[1em]">
 					<div className="flex items-center gap-[0.25em]">
