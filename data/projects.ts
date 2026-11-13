@@ -26,6 +26,9 @@ const R2_FILES: Record<string, string> = {
   "ARC LAB": "ARCLAB_MP4.mp4",
   "HILDÉN & KAIRA": "hk.mov",
   "WAVE VENTURES": "WAVE_MP4.mov",
+  BRONN: "BRONN_MP4.mp4",
+  STOA: "STOA_MP4.mov",
+  "ÄRRÄ": "ARRA_MP4.mov",
 };
 
 export const reelVideos: Video[] = generatedReelVideos.map((v) => {
