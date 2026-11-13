@@ -80,7 +80,7 @@ export function AboutView() {
             <div className="w-full max-w-[320px] mx-auto md:max-w-none md:mx-0 md:w-[420px] lg:w-[max(520px,48.15vh)] shrink-0">
               <div className="relative w-full aspect-[4/5] overflow-hidden rounded-lg border border-gray-800">
                 <Image
-                  src="/images/portrait.jpg"
+                  src="/images/portrait-2.jpg"
                   alt="Portrait"
                   fill
                   sizes="(min-width: 1024px) 52vh, (min-width: 768px) 420px, 90vw"
@@ -96,10 +96,8 @@ export function AboutView() {
               </h2>
               <div className="mt-5 md:mt-6 lg:mt-[max(1.5rem,2.22vh)] max-w-[56ch] text-lg md:text-xl lg:text-[max(1.25rem,1.85vh)] text-gray-300 leading-relaxed space-y-5 md:space-y-6 lg:space-y-[max(1.5rem,2.22vh)]">
                 <p>
-                  I’m a Helsinki-based creative working across video, graphic design, and music. My work combines
-                  clean, modern aesthetics with emotion and atmosphere, drawing heavy inspiration from hip-hop
-                  culture. If you have a brand that cares about building a distinctive visual identity, let’s work
-                  together.
+                  I’m a Helsinki-based creative working in video production and graphic design. I help brands turn
+                  ideas into compelling visuals.
                 </p>
 
                 <div className="pt-2 flex flex-col gap-4 lg:gap-[max(1rem,1.48vh)]">
