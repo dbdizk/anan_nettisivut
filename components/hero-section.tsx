@@ -44,6 +44,27 @@ function InstagramIcon({ className }: { className?: string }) {
   );
 }
 
+function LinkedinIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.8"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+      aria-hidden="true"
+    >
+      <rect x="6" y="6" width="12" height="12" rx="3" />
+      <circle cx="9.4" cy="9.2" r="0.8" fill="currentColor" stroke="none" />
+      <path d="M9.4 11.4v3.8" />
+      <path d="M12.2 15.2v-3.8" />
+      <path d="M12.2 13.1c0-1 .8-1.7 1.7-1.7s1.7.7 1.7 1.7v2.1" />
+    </svg>
+  );
+}
+
 function YoutubeIcon({ className }: { className?: string }) {
   return (
     <svg
@@ -86,6 +107,9 @@ export function HeroSection() {
         <div className="flex items-center gap-3 text-gray-300">
           <IconButton label="Instagram" href="https://www.instagram.com/byanttipark/">
             <InstagramIcon className="w-8 h-8" />
+          </IconButton>
+          <IconButton label="LinkedIn" href="https://www.linkedin.com/in/anttipark/">
+            <LinkedinIcon className="w-8 h-8" />
           </IconButton>
         </div>
 

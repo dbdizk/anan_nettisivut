@@ -1,7 +1,10 @@
-// Optimize the full WITH-AUDIO modal videos before uploading them to R2.
+// NOT PART OF THE NORMAL WORKFLOW. The full modal videos in R2 are the original,
+// full-quality exports — upload originals to R2 as-is, do not run this first.
+//
+// Optional tool only: makes lighter copies (H.264 1080p, CRF 23, AAC, faststart)
+// of public/media/full/*.{mp4,mov} into public/media/full/optimized/, in case a
+// smaller version is ever wanted. It is CPU-heavy (re-encodes every file there).
 //   node scripts/optimize-full.mjs
-// Reads public/media/full/*.{mp4,mov} and writes lighter versions (H.264 1080p,
-// CRF 23, AAC, faststart) to public/media/full/optimized/. Upload THOSE to R2.
 
 import { spawn } from "node:child_process";
 import fs from "node:fs/promises";
