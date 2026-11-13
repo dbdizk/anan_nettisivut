@@ -95,9 +95,10 @@ export function AboutView() {
                 ABOUT ME
               </h2>
               <div className="mt-5 md:mt-6 lg:mt-[max(1.5rem,2.22vh)] max-w-[56ch] text-lg md:text-xl lg:text-[max(1.25rem,1.85vh)] text-gray-300 leading-relaxed space-y-5 md:space-y-6 lg:space-y-[max(1.5rem,2.22vh)]">
-                <p>
-                  I’m a Helsinki-based creative working in video production and graphic design. I help brands turn
-                  ideas into compelling visuals.
+                <p className="text-xl lg:text-[max(1.6rem,2.35vh)]">
+                  <span className="lg:block">I’m a Helsinki-based creative working in</span>{" "}
+                  <span className="lg:block">video production and graphic design.</span>{" "}
+                  <span className="block">I help brands turn ideas into compelling visuals.</span>
                 </p>
 
                 <div className="pt-2 flex flex-col gap-4 lg:gap-[max(1rem,1.48vh)]">
