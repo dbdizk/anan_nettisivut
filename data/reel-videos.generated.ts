@@ -11,18 +11,12 @@ export const reelVideos = [
   },
   {
     id: "2",
-    src: "/media/optimized/ARRA_MP4.mp4",
-    poster: "/media/optimized/ARRA_MP4.jpg",
-    title: "ÄRRÄ",
-  },
-  {
-    id: "3",
     src: "/media/optimized/BRONN_MP4.mp4",
     poster: "/media/optimized/BRONN_MP4.jpg",
     title: "BRONN",
   },
   {
-    id: "4",
+    id: "3",
     src: "/media/optimized/CONCEPTS_MP4.mp4",
     srcHigh: "/media/CONCEPTS_MP4.mp4",
     srcFull: "/media/full/CONCEPTS_MP4.mp4",
@@ -30,7 +24,7 @@ export const reelVideos = [
     title: "CONCEPTS",
   },
   {
-    id: "5",
+    id: "4",
     src: "/media/optimized/DOM_MP4.mp4",
     srcHigh: "/media/DOM_MP4.mp4",
     srcFull: "/media/full/DOM_MP4.mp4",
@@ -38,14 +32,14 @@ export const reelVideos = [
     title: "NIGHTCLUB DOM",
   },
   {
-    id: "6",
+    id: "5",
     src: "/media/optimized/hk.mp4",
     srcHigh: "/media/hk.mp4",
     poster: "/media/optimized/hk.jpg",
     title: "HILDÉN & KAIRA",
   },
   {
-    id: "7",
+    id: "6",
     src: "/media/optimized/KLANGI_MP4.mp4",
     srcHigh: "/media/KLANGI_MP4.mp4",
     srcFull: "/media/full/KLANGI_MP4.mp4",
@@ -53,13 +47,13 @@ export const reelVideos = [
     title: "KLANGI",
   },
   {
-    id: "8",
+    id: "7",
     src: "/media/optimized/STOA_MP4.mp4",
     poster: "/media/optimized/STOA_MP4.jpg",
     title: "STOA",
   },
   {
-    id: "9",
+    id: "8",
     src: "/media/optimized/WAVE_MP4.mp4",
     srcHigh: "/media/WAVE_MP4.mp4",
     poster: "/media/optimized/WAVE_MP4.jpg",

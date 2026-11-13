@@ -13,9 +13,7 @@ function toUrlPath(posixPath) {
 const TITLE_OVERRIDES = {
   WAVE_MP4: "WAVE VENTURES",
   ARCLAB_MP4: "ARC LAB",
-  DOM_MP4: "NIGHTCLUB DOM",
-  ARRA_MP4: "ÄRRÄ",
-  hk: "HILDÉN & KAIRA",
+  DOM_MP4: "NIGHTCLUB DOM",  hk: "HILDÉN & KAIRA",
 };
 
 function titleFromFilename(filename) {
